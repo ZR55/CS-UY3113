@@ -9,6 +9,8 @@
 **/
 
 #define GL_SILENCE_DEPRECATION
+#define STB_IMAGE_IMPLEMENTATION
+#define LOG(argument) std::cout << argument << '\n'
 #define GL_GLEXT_PROTOTYPES 1
 
 #ifdef _WINDOWS
@@ -18,10 +20,15 @@
 #include <iostream>
 #include <SDL.h>
 #include <SDL_opengl.h>
+#include "glm/mat4x4.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "ShaderProgram.h"
+#include "stb_image.h"
 
-// enums
+/* enums */
 enum AppStatus {RUNNING, TERMINATED};
 
+/* constants */
 // The size of our literal game window
 constexpr int WINDOW_WIDTH = 640,
 WINDOW_HEIGHT = 480;
@@ -33,9 +40,66 @@ BG_BLUE = 0.549f,
 BG_GREEN = 0.9059f,
 BG_OPACITY = 1.0f;
 
-// global variables
+constexpr int VIEWPORT_X = 0,
+VIEWPORT_Y = 0,
+VIEWPORT_WIDTH = WINDOW_WIDTH,
+VIEWPORT_HEIGHT = WINDOW_HEIGHT;
+
+// textures
+constexpr char V_SHADER_PATH[] = "shaders/vertex_textured.glsl",
+F_SHADER_PATH[] = "shaders/fragment_textured.glsl";
+
+constexpr char BIN_SPRITE_FILEPATH[] = "assets/bin.png",
+APPLE_SPRITE_FILEPATH[] = "assets/apple.png",
+WATERMELON_SPRITE_FILEPATH[] = "assets/watermelon.png";
+
+constexpr int NUMBER_OF_TEXTURES = 1;
+constexpr GLint LEVEL_OF_DETAIL = 0;
+constexpr GLint TEXTURE_BORDER = 0;
+
+/* global variables */
+// general
 SDL_Window* g_display_window = nullptr;
 AppStatus g_game_status = RUNNING;
+ShaderProgram g_shader_program = ShaderProgram();
+
+// texture
+GLuint g_bin_texture_id,
+g_apple_texture_id,
+g_watermelon_texture_id;
+
+// objects
+glm::mat4 g_view_matrix,
+g_apple_matrix,
+g_watermelon_matrix,
+g_bin_matrix,
+g_projection_matrix;
+
+GLuint load_texture(const char* filepath) {
+    // load the image file
+    int width, height, number_of_components;
+    unsigned char* image = stbi_load(filepath, &width, &height, &number_of_components, STBI_rgb_alpha);
+
+    if (image == NULL) {
+        LOG("Unable to load image. Make sure the path is correct.");
+        assert(false);
+    }
+
+    // generate and bind a texture ID to image
+    GLuint textureID;
+    glGenTextures(NUMBER_OF_TEXTURES, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexImage2D(GL_TEXTURE_2D, LEVEL_OF_DETAIL, GL_RGBA, width, height, TEXTURE_BORDER, GL_RGBA, GL_UNSIGNED_BYTE, image);
+
+    // set texture filter parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    // release file from memory and return texture id
+    stbi_image_free(image);
+
+    return textureID;
+}
 
 void initialize() {
     // Initialising
@@ -64,7 +128,29 @@ void initialize() {
     glewInit();
 #endif
 
+    glViewport(VIEWPORT_X, VIEWPORT_Y, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
+
+    g_shader_program.load(V_SHADER_PATH, F_SHADER_PATH);
+
+    g_view_matrix = glm::mat4(1.0f);
+    g_apple_matrix = glm::mat4(1.0f);
+    g_watermelon_matrix = glm::mat4(1.0f);
+    g_bin_matrix = glm::mat4(1.0f);
+    g_projection_matrix = glm::ortho(-5.0f, 5.0f, -3.75f, 3.75f, -1.0f, 1.0f);
+
+    g_shader_program.set_projection_matrix(g_projection_matrix);
+    g_shader_program.set_view_matrix(g_view_matrix);
+
+    glUseProgram(g_shader_program.get_program_id());
+
     glClearColor(BG_RED, BG_BLUE, BG_GREEN, BG_OPACITY);
+
+    g_bin_texture_id = load_texture(BIN_SPRITE_FILEPATH);
+    g_apple_texture_id = load_texture(APPLE_SPRITE_FILEPATH);
+    g_watermelon_texture_id = load_texture(WATERMELON_SPRITE_FILEPATH);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void process_input() {
@@ -80,11 +166,44 @@ void update() {
 
 }
 
+void draw_object(glm::mat4& object_g_model_matrix, GLuint& object_texture_id) {
+    g_shader_program.set_model_matrix(object_g_model_matrix);
+    glBindTexture(GL_TEXTURE_2D, object_texture_id);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
 void render() {
     // Quite simply: clear the space in memory holding our colours
     glClear(GL_COLOR_BUFFER_BIT);
 
-    /** more stuff here **/
+    // Vertices
+    float vertices[] =
+    {
+        -0.5f, -0.5f, 0.5f, -0.5f, 0.5f, 0.5f,  // triangle 1
+        -0.5f, -0.5f, 0.5f, 0.5f, -0.5f, 0.5f   // triangle 2
+    };
+
+    glVertexAttribPointer(g_shader_program.get_position_attribute(), 2, GL_FLOAT, false, 0, vertices);
+    glEnableVertexAttribArray(g_shader_program.get_position_attribute());
+
+    // Textures
+    float texture_coordinates[] =
+    {
+        0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,     // triangle 1
+        0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,     // triangle 2
+    };
+
+    glVertexAttribPointer(g_shader_program.get_tex_coordinate_attribute(), 2, GL_FLOAT, false, 0, texture_coordinates);
+    glEnableVertexAttribArray(g_shader_program.get_tex_coordinate_attribute());
+
+    // bind texture
+    draw_object(g_apple_matrix, g_apple_texture_id);
+    draw_object(g_watermelon_matrix, g_watermelon_texture_id);
+    draw_object(g_bin_matrix, g_bin_texture_id);
+
+    // disable two attribute arrays
+    glDisableVertexAttribArray(g_shader_program.get_position_attribute());
+    glDisableVertexAttribArray(g_shader_program.get_tex_coordinate_attribute());
 
     // Update a window with whatever OpenGL is rendering
     SDL_GL_SwapWindow(g_display_window);
