@@ -33,8 +33,7 @@ enum AppStatus {RUNNING, TERMINATED};
 constexpr int WINDOW_WIDTH = 640,
 WINDOW_HEIGHT = 480;
 
-// The background colours may change in the course of our games, so they can also be
-// variables
+// general
 constexpr float BG_RED = 0.1922f,
 BG_BLUE = 0.549f,
 BG_GREEN = 0.9059f,
@@ -44,6 +43,8 @@ constexpr int VIEWPORT_X = 0,
 VIEWPORT_Y = 0,
 VIEWPORT_WIDTH = WINDOW_WIDTH,
 VIEWPORT_HEIGHT = WINDOW_HEIGHT;
+
+constexpr float MILLISECONDS_IN_SECOND = 1000.0;
 
 // textures
 constexpr char V_SHADER_PATH[] = "shaders/vertex_textured.glsl",
@@ -63,12 +64,29 @@ SDL_Window* g_display_window = nullptr;
 AppStatus g_game_status = RUNNING;
 ShaderProgram g_shader_program = ShaderProgram();
 
+float g_previous_tick = 0.0f;
+
 // texture
 GLuint g_bin_texture_id,
 g_apple_texture_id,
 g_watermelon_texture_id;
 
 // objects
+float apple_speed_x = 0.0f,
+apple_speed_y = 0.0f,
+watermelon_speed_x = 0.0f,
+watermelon_speed_y = 0.0f,
+bin_speed_x = 0.0f,
+bin_speed_y = 0.0f;
+
+glm::vec3 g_apple_translation = glm::vec3(0.0f, 0.0f, 0.0f);
+//glm::vec3 g_apple_movement = glm::vec3(0.0f, 0.0f, 0.0f);
+//glm::vec3 g_watermelon_position = glm::vec3(0.0f, 0.0f, 0.0f);
+//glm::vec3 g_watermelon_movement = glm::vec3(0.0f, 0.0f, 0.0f);
+//glm::vec3 g_bin_position = glm::vec3(0.0f, 0.0f, 0.0f);
+//glm::vec3 g_bin_movement = glm::vec3(0.0f, 0.0f, 0.0f);
+
+
 glm::mat4 g_view_matrix,
 g_apple_matrix,
 g_watermelon_matrix,
@@ -162,8 +180,32 @@ void process_input() {
     }
 }
 
-void update() {
+float rand_speed(float min, float max) {
+    return rand() / (float)(RAND_MAX / max - min) - min;
+}
 
+void update() {
+    // delta time
+    float tick = SDL_GetTicks() / MILLISECONDS_IN_SECOND;
+    float delta_time = tick - g_previous_tick;
+    g_previous_tick = tick;
+
+    // game logic - accumulators
+    // randomly pick a speed for apple from -1 to 1
+    apple_speed_x = rand_speed(-1, 1) * delta_time;
+    apple_speed_y = rand_speed(-1, 1) * delta_time;
+    g_apple_translation.x += apple_speed_x;
+    g_apple_translation.y += apple_speed_y;
+    // make the speed of bin and watermelon slightly faster than the apple
+
+
+    // model matrix reset
+    g_apple_matrix = glm::mat4(1.0f);
+    g_watermelon_matrix = glm::mat4(1.0f);
+    g_bin_matrix = glm::mat4(1.0f);
+
+    // transformation
+    g_apple_matrix = glm::translate(g_apple_matrix, g_apple_translation);
 }
 
 void draw_object(glm::mat4& object_g_model_matrix, GLuint& object_texture_id) {
