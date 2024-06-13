@@ -53,10 +53,13 @@ F_SHADER_PATH[] = "shaders/fragment_textured.glsl";
 constexpr char BIN_SPRITE_FILEPATH[] = "assets/bin.png",
 APPLE_SPRITE_FILEPATH[] = "assets/apple.png",
 WATERMELON_SPRITE_FILEPATH[] = "assets/watermelon.png";
+constexpr glm::vec3 BIN_INIT_SCALE = glm::vec3(3.0f, 3.0f, 0.0f);
 
 constexpr int NUMBER_OF_TEXTURES = 1;
 constexpr GLint LEVEL_OF_DETAIL = 0;
 constexpr GLint TEXTURE_BORDER = 0;
+
+constexpr float ROT_INCREMENT_WATERMELON = 1.0f;
 
 /* global variables */
 // general
@@ -72,17 +75,18 @@ g_apple_texture_id,
 g_watermelon_texture_id;
 
 // objects
-float apple_speed_x = 0.0f,
-apple_speed_y = 0.0f,
-watermelon_speed_x = 0.0f,
-watermelon_speed_y = 0.0f,
-bin_speed_x = 0.0f,
-bin_speed_y = 0.0f;
+//float apple_speed_x = 0.0f,
+//apple_speed_y = 0.0f,
+//watermelon_speed_x = 0.0f,
+//watermelon_speed_y = 0.0f,
+//bin_speed_x = 0.0f,
+//bin_speed_y = 0.0f;
+float g_theta_watermelon = 0.0f;
 
-glm::vec3 g_apple_translation = glm::vec3(0.0f, 0.0f, 0.0f);
+//glm::vec3 g_apple_translation = glm::vec3(0.0f, 0.0f, 0.0f);
 //glm::vec3 g_apple_movement = glm::vec3(0.0f, 0.0f, 0.0f);
 //glm::vec3 g_watermelon_position = glm::vec3(0.0f, 0.0f, 0.0f);
-//glm::vec3 g_watermelon_movement = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 g_rotation_watermelon = glm::vec3(0.0f, 0.0f, 0.0f);
 //glm::vec3 g_bin_position = glm::vec3(0.0f, 0.0f, 0.0f);
 //glm::vec3 g_bin_movement = glm::vec3(0.0f, 0.0f, 0.0f);
 
@@ -181,7 +185,7 @@ void process_input() {
 }
 
 float rand_speed(float min, float max) {
-    return rand() / (float)(RAND_MAX / max - min) - min;
+    return rand() / (float)(RAND_MAX / max - min) + min;
 }
 
 void update() {
@@ -192,10 +196,15 @@ void update() {
 
     // game logic - accumulators
     // randomly pick a speed for apple from -1 to 1
-    apple_speed_x = rand_speed(-1, 1) * delta_time;
-    apple_speed_y = rand_speed(-1, 1) * delta_time;
-    g_apple_translation.x += apple_speed_x;
-    g_apple_translation.y += apple_speed_y;
+    //apple_speed_x = rand_speed(-1, 1) * delta_time;
+    //apple_speed_y = rand_speed(-1, 1) * delta_time;
+    //std::cout << "apple x speed is: " << apple_speed_x << "\n";
+    //std::cout << "apple y speed is: " << apple_speed_y << "\n";
+    g_theta_watermelon += 1.5f * delta_time;
+    g_rotation_watermelon.z += ROT_INCREMENT_WATERMELON * delta_time;
+
+    //g_apple_translation.x += apple_speed_x;
+    //g_apple_translation.y += apple_speed_y;
     // make the speed of bin and watermelon slightly faster than the apple
 
 
@@ -205,7 +214,13 @@ void update() {
     g_bin_matrix = glm::mat4(1.0f);
 
     // transformation
-    g_apple_matrix = glm::translate(g_apple_matrix, g_apple_translation);
+    // watermelon move in circle and rotate
+    glm::vec3 watermelon_translation_vector = glm::vec3(glm::cos(g_theta_watermelon) * 2, glm::sin(g_theta_watermelon) * 2, 0.0f);
+    g_watermelon_matrix = glm::translate(g_watermelon_matrix, watermelon_translation_vector);
+    g_watermelon_matrix = glm::rotate(g_watermelon_matrix, g_rotation_watermelon.z, glm::vec3(0.0f, 0.0f, -1.0f));
+    // bin moves in circle, chasing watermelon with slightly faster speed
+    g_bin_matrix = glm::scale(g_bin_matrix, BIN_INIT_SCALE);
+    // apple moves up and down inside of the bin
 }
 
 void draw_object(glm::mat4& object_g_model_matrix, GLuint& object_texture_id) {
