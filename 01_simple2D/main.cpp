@@ -84,9 +84,18 @@ g_watermelon_texture_id;
 // objects
 WatermelonStatus g_watermelon_status = ESCAPING;
 
-float g_theta_watermelon = 0.0f;
-float g_theta_bin_apple = 10.0f;
-float g_theta_apple = 0.0f;
+float g_theta_watermelon = 0.0f,
+g_theta_bin_apple = 10.0f,
+g_theta_apple = 0.0f;
+
+float g_bin_x = 0.0f,
+g_bin_y = 0.0f,
+g_apple_x = 0.0f,
+g_apple_y = 0.f,
+g_watermelon_x = 0.f,
+g_watermelon_y = 0.f;
+
+float g_bin_size = BIN_SIZE;
 
 glm::vec3 g_rotation_watermelon = glm::vec3(0.0f, 0.0f, 0.0f);
 
@@ -215,24 +224,66 @@ void update() {
         g_bin_matrix = glm::translate(g_bin_matrix, bin_translation_vector);
         g_bin_matrix = glm::scale(g_bin_matrix, BIN_INIT_SCALE);
         // apple moves up and down inside of the bin
-        g_apple_matrix = glm::translate(g_apple_matrix, bin_translation_vector);
-        g_apple_matrix = glm::translate(g_apple_matrix, glm::vec3(0.0f, glm::sin(g_theta_apple) * 0.3, 0.0f));
+        glm::vec3 apple_translation_vector = bin_translation_vector + glm::vec3(0.0f, glm::sin(g_theta_apple) * 0.3, 0.0f);
+        //g_apple_matrix = glm::translate(g_apple_matrix, bin_translation_vector);
+        g_apple_matrix = glm::translate(g_apple_matrix, apple_translation_vector);
 
         // check if watermelon is caught
         if (watermelon_translation_vector.x + FRUIT_WIDTH / 2 <= bin_translation_vector.x + BIN_SIZE / 2 - 0.5f &&
             watermelon_translation_vector.x - FRUIT_WIDTH / 2 >= bin_translation_vector.x - BIN_SIZE / 2 + 0.5f &&
             watermelon_translation_vector.y + WATERMELON_HEIGHT / 2 <= bin_translation_vector.y + BIN_SIZE / 2 - 0.2f &&
             watermelon_translation_vector.y - WATERMELON_HEIGHT / 2 >= bin_translation_vector.y - BIN_SIZE / 2 + 0.2f) {
-            std::cout << "watermelon right limit is: " << watermelon_translation_vector.x + FRUIT_WIDTH / 2 << '\n'
-                << "watermelon left limit is: " << watermelon_translation_vector.x - FRUIT_WIDTH / 2 << '\n'
-                << "bin right limit is: " << bin_translation_vector.x + BIN_SIZE / 2 - 0.5f << '\n'
-                << "bin left limit is: " << bin_translation_vector.x - BIN_SIZE / 2 + 0.5f << '\n';
+            //std::cout << "watermelon right limit is: " << watermelon_translation_vector.x + FRUIT_WIDTH / 2 << '\n'
+            //    << "watermelon left limit is: " << watermelon_translation_vector.x - FRUIT_WIDTH / 2 << '\n'
+            //    << "bin right limit is: " << bin_translation_vector.x + BIN_SIZE / 2 - 0.5f << '\n'
+            //    << "bin left limit is: " << bin_translation_vector.x - BIN_SIZE / 2 + 0.5f << '\n';
             g_watermelon_status = CAUGHT;
             std::cout << "CAUGHT!!!!!!" << '\n';
+            g_bin_x = bin_translation_vector.x;
+            g_bin_y = bin_translation_vector.y;
+            g_apple_x = apple_translation_vector.x;
+            g_apple_y = apple_translation_vector.y;
+            g_watermelon_x = watermelon_translation_vector.x;
+            g_watermelon_y = watermelon_translation_vector.y;
         }
     }
     else {
         // the bin with watermelon and apple move to the center
+        float back_to_origin_time = 1000.f;
+        float bin_increment_x = (0 - g_bin_x) / back_to_origin_time,
+            bin_increment_y = (0 - g_bin_y) / back_to_origin_time,
+            apple_increment_x = (0 - g_apple_x) / back_to_origin_time,
+            apple_increment_y = (0 - g_apple_y) / back_to_origin_time,
+            watermelon_increment_x = (0 - g_watermelon_x) / back_to_origin_time,
+            watermelon_increment_y = (0 - g_watermelon_y) / back_to_origin_time;
+        g_bin_x += bin_increment_x;
+        g_bin_y += bin_increment_y;
+        g_apple_x += apple_increment_x;
+        g_apple_y += apple_increment_y;
+        g_watermelon_x += watermelon_increment_x;
+        g_watermelon_y += watermelon_increment_y;
+        g_bin_size += 0.0005f;
+
+        if (g_bin_size >= 6.f) {
+            g_bin_size = 6.f;
+        }
+
+
+
+        g_bin_matrix = glm::translate(g_bin_matrix, glm::vec3(g_bin_x, g_bin_y, 0.f));
+        //g_bin_matrix = glm::scale(g_bin_matrix, BIN_INIT_SCALE);
+        if (g_bin_x <= 0.05f && g_bin_y <= 0.05f) {
+            g_bin_matrix = glm::scale(g_bin_matrix, glm::vec3(g_bin_size, g_bin_size, 0.f));
+        }
+        else {
+            g_bin_matrix = glm::scale(g_bin_matrix, BIN_INIT_SCALE);
+        }
+        //std::cout << "g_bin_size is: " << g_bin_size << '\n';
+
+        g_watermelon_matrix = glm::translate(g_watermelon_matrix, glm::vec3(g_watermelon_x, g_watermelon_y, 0.f));
+
+        g_apple_matrix = glm::translate(g_apple_matrix, glm::vec3(g_apple_x, g_apple_y, 0.f));
+
         // the bin scales up
     }
 
