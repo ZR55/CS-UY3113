@@ -27,6 +27,7 @@
 
 /* enums */
 enum AppStatus {RUNNING, TERMINATED};
+enum WatermelonStatus {ESCAPING, CAUGHT};
 
 /* constants */
 // The size of our literal game window
@@ -53,7 +54,13 @@ F_SHADER_PATH[] = "shaders/fragment_textured.glsl";
 constexpr char BIN_SPRITE_FILEPATH[] = "assets/bin.png",
 APPLE_SPRITE_FILEPATH[] = "assets/apple.png",
 WATERMELON_SPRITE_FILEPATH[] = "assets/watermelon.png";
-constexpr glm::vec3 BIN_INIT_SCALE = glm::vec3(3.0f, 3.0f, 0.0f);
+constexpr float BIN_SIZE = 3.0f;
+constexpr glm::vec3 BIN_INIT_SCALE = glm::vec3(BIN_SIZE, BIN_SIZE, 0.0f);
+constexpr float FRUIT_WIDTH = 1.0f;
+constexpr float APPLE_HEIGHT = 200 / 159.0f;
+constexpr glm::vec3 APPLE_INIT_SCALE = glm::vec3(FRUIT_WIDTH, APPLE_HEIGHT, 0.0f);
+constexpr float WATERMELON_HEIGHT = 200 / 186.0f;
+constexpr glm::vec3 WATERMELON_INIT_SCALE = glm::vec3(FRUIT_WIDTH, WATERMELON_HEIGHT, 0.0f);
 
 constexpr int NUMBER_OF_TEXTURES = 1;
 constexpr GLint LEVEL_OF_DETAIL = 0;
@@ -75,23 +82,13 @@ g_apple_texture_id,
 g_watermelon_texture_id;
 
 // objects
-//float apple_speed_x = 0.0f,
-//apple_speed_y = 0.0f,
-//watermelon_speed_x = 0.0f,
-//watermelon_speed_y = 0.0f,
-//bin_speed_x = 0.0f,
-//bin_speed_y = 0.0f;
+WatermelonStatus g_watermelon_status = ESCAPING;
+
 float g_theta_watermelon = 0.0f;
 float g_theta_bin_apple = 10.0f;
 float g_theta_apple = 0.0f;
 
-//glm::vec3 g_apple_translation = glm::vec3(0.0f, 0.0f, 0.0f);
-//glm::vec3 g_apple_movement = glm::vec3(0.0f, 0.0f, 0.0f);
-//glm::vec3 g_watermelon_position = glm::vec3(0.0f, 0.0f, 0.0f);
 glm::vec3 g_rotation_watermelon = glm::vec3(0.0f, 0.0f, 0.0f);
-//glm::vec3 g_bin_position = glm::vec3(0.0f, 0.0f, 0.0f);
-//glm::vec3 g_bin_movement = glm::vec3(0.0f, 0.0f, 0.0f);
-
 
 glm::mat4 g_view_matrix,
 g_apple_matrix,
@@ -197,20 +194,10 @@ void update() {
     g_previous_tick = tick;
 
     // game logic - accumulators
-    // randomly pick a speed for apple from -1 to 1
-    //apple_speed_x = rand_speed(-1, 1) * delta_time;
-    //apple_speed_y = rand_speed(-1, 1) * delta_time;
-    //std::cout << "apple x speed is: " << apple_speed_x << "\n";
-    //std::cout << "apple y speed is: " << apple_speed_y << "\n";
     g_theta_watermelon += 1.5f * delta_time;
     g_rotation_watermelon.z += ROT_INCREMENT_WATERMELON * delta_time;
     g_theta_bin_apple += 1.7f * delta_time;
     g_theta_apple += 4.5f * delta_time;
-
-    //g_apple_translation.x += apple_speed_x;
-    //g_apple_translation.y += apple_speed_y;
-    // make the speed of bin and watermelon slightly faster than the apple
-
 
     // model matrix reset
     g_apple_matrix = glm::mat4(1.0f);
@@ -218,19 +205,38 @@ void update() {
     g_bin_matrix = glm::mat4(1.0f);
 
     // transformation
-    // watermelon move in circle and rotate
-    glm::vec3 watermelon_translation_vector = glm::vec3(glm::cos(g_theta_watermelon) * 2.5, glm::sin(g_theta_watermelon) * 2.5, 0.0f);
-    g_watermelon_matrix = glm::translate(g_watermelon_matrix, watermelon_translation_vector);
-    g_watermelon_matrix = glm::rotate(g_watermelon_matrix, g_rotation_watermelon.z, glm::vec3(0.0f, 0.0f, -1.0f));
-    // bin moves in circle, chasing watermelon with slightly faster speed
-    glm::vec3 bin_translation_vector = glm::vec3(glm::cos(g_theta_bin_apple) * 2.5, glm::sin(g_theta_bin_apple) * 2.5, 0.0f);
-    g_bin_matrix = glm::translate(g_bin_matrix, bin_translation_vector);
-    g_bin_matrix = glm::scale(g_bin_matrix, BIN_INIT_SCALE);
-    // apple moves up and down inside of the bin
-    //glm::vec3 apple_translation_vector = bin_translation_vector + glm::vec3(0.0f, g_movement_apple, 0.0f);
-    g_apple_matrix = glm::translate(g_apple_matrix, bin_translation_vector);
-    //g_apple_matrix = glm::translate(g_apple_matrix, apple_translation_vector);
-    g_apple_matrix = glm::translate(g_apple_matrix, glm::vec3(0.0f, glm::sin(g_theta_apple) * 0.3, 0.0f));
+    if (g_watermelon_status == ESCAPING) {
+        // watermelon move in circle and rotate
+        glm::vec3 watermelon_translation_vector = glm::vec3(glm::cos(g_theta_watermelon) * 2.5, glm::sin(g_theta_watermelon) * 2.5, 0.0f);
+        g_watermelon_matrix = glm::translate(g_watermelon_matrix, watermelon_translation_vector);
+        g_watermelon_matrix = glm::rotate(g_watermelon_matrix, g_rotation_watermelon.z, glm::vec3(0.0f, 0.0f, -1.0f));
+        // bin moves in circle, chasing watermelon with slightly faster speed
+        glm::vec3 bin_translation_vector = glm::vec3(glm::cos(g_theta_bin_apple) * 2.5, glm::sin(g_theta_bin_apple) * 2.5, 0.0f);
+        g_bin_matrix = glm::translate(g_bin_matrix, bin_translation_vector);
+        g_bin_matrix = glm::scale(g_bin_matrix, BIN_INIT_SCALE);
+        // apple moves up and down inside of the bin
+        g_apple_matrix = glm::translate(g_apple_matrix, bin_translation_vector);
+        g_apple_matrix = glm::translate(g_apple_matrix, glm::vec3(0.0f, glm::sin(g_theta_apple) * 0.3, 0.0f));
+
+        // check if watermelon is caught
+        if (watermelon_translation_vector.x + FRUIT_WIDTH / 2 <= bin_translation_vector.x + BIN_SIZE / 2 - 0.5f &&
+            watermelon_translation_vector.x - FRUIT_WIDTH / 2 >= bin_translation_vector.x - BIN_SIZE / 2 + 0.5f &&
+            watermelon_translation_vector.y + WATERMELON_HEIGHT / 2 <= bin_translation_vector.y + BIN_SIZE / 2 - 0.2f &&
+            watermelon_translation_vector.y - WATERMELON_HEIGHT / 2 >= bin_translation_vector.y - BIN_SIZE / 2 + 0.2f) {
+            std::cout << "watermelon right limit is: " << watermelon_translation_vector.x + FRUIT_WIDTH / 2 << '\n'
+                << "watermelon left limit is: " << watermelon_translation_vector.x - FRUIT_WIDTH / 2 << '\n'
+                << "bin right limit is: " << bin_translation_vector.x + BIN_SIZE / 2 - 0.5f << '\n'
+                << "bin left limit is: " << bin_translation_vector.x - BIN_SIZE / 2 + 0.5f << '\n';
+            g_watermelon_status = CAUGHT;
+            std::cout << "CAUGHT!!!!!!" << '\n';
+        }
+    }
+    else {
+        // the bin with watermelon and apple move to the center
+        // the bin scales up
+    }
+
+
 
 }
 
