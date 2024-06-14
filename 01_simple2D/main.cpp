@@ -82,6 +82,8 @@ g_watermelon_texture_id;
 //bin_speed_x = 0.0f,
 //bin_speed_y = 0.0f;
 float g_theta_watermelon = 0.0f;
+float g_theta_bin_apple = 10.0f;
+float g_theta_apple = 0.0f;
 
 //glm::vec3 g_apple_translation = glm::vec3(0.0f, 0.0f, 0.0f);
 //glm::vec3 g_apple_movement = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -202,6 +204,8 @@ void update() {
     //std::cout << "apple y speed is: " << apple_speed_y << "\n";
     g_theta_watermelon += 1.5f * delta_time;
     g_rotation_watermelon.z += ROT_INCREMENT_WATERMELON * delta_time;
+    g_theta_bin_apple += 1.7f * delta_time;
+    g_theta_apple += 4.5f * delta_time;
 
     //g_apple_translation.x += apple_speed_x;
     //g_apple_translation.y += apple_speed_y;
@@ -215,12 +219,19 @@ void update() {
 
     // transformation
     // watermelon move in circle and rotate
-    glm::vec3 watermelon_translation_vector = glm::vec3(glm::cos(g_theta_watermelon) * 2, glm::sin(g_theta_watermelon) * 2, 0.0f);
+    glm::vec3 watermelon_translation_vector = glm::vec3(glm::cos(g_theta_watermelon) * 2.5, glm::sin(g_theta_watermelon) * 2.5, 0.0f);
     g_watermelon_matrix = glm::translate(g_watermelon_matrix, watermelon_translation_vector);
     g_watermelon_matrix = glm::rotate(g_watermelon_matrix, g_rotation_watermelon.z, glm::vec3(0.0f, 0.0f, -1.0f));
     // bin moves in circle, chasing watermelon with slightly faster speed
+    glm::vec3 bin_translation_vector = glm::vec3(glm::cos(g_theta_bin_apple) * 2.5, glm::sin(g_theta_bin_apple) * 2.5, 0.0f);
+    g_bin_matrix = glm::translate(g_bin_matrix, bin_translation_vector);
     g_bin_matrix = glm::scale(g_bin_matrix, BIN_INIT_SCALE);
     // apple moves up and down inside of the bin
+    //glm::vec3 apple_translation_vector = bin_translation_vector + glm::vec3(0.0f, g_movement_apple, 0.0f);
+    g_apple_matrix = glm::translate(g_apple_matrix, bin_translation_vector);
+    //g_apple_matrix = glm::translate(g_apple_matrix, apple_translation_vector);
+    g_apple_matrix = glm::translate(g_apple_matrix, glm::vec3(0.0f, glm::sin(g_theta_apple) * 0.3, 0.0f));
+
 }
 
 void draw_object(glm::mat4& object_g_model_matrix, GLuint& object_texture_id) {
