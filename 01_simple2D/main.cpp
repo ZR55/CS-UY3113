@@ -35,9 +35,9 @@ constexpr int WINDOW_WIDTH = 640,
 WINDOW_HEIGHT = 480;
 
 // general
-constexpr float BG_RED = 0.1922f,
-BG_BLUE = 0.549f,
-BG_GREEN = 0.9059f,
+constexpr float BG_RED = 193 / 255.0f,
+BG_BLUE = 193 / 255.0f,
+BG_GREEN = 225 / 255.0f,
 BG_OPACITY = 1.0f;
 
 constexpr int VIEWPORT_X = 0,
@@ -173,7 +173,7 @@ void initialize() {
 
     glUseProgram(g_shader_program.get_program_id());
 
-    glClearColor(BG_RED, BG_BLUE, BG_GREEN, BG_OPACITY);
+    glClearColor(BG_RED, BG_GREEN, BG_BLUE, BG_OPACITY);
 
     g_bin_texture_id = load_texture(BIN_SPRITE_FILEPATH);
     g_apple_texture_id = load_texture(APPLE_SPRITE_FILEPATH);
