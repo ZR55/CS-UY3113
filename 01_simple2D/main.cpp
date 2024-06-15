@@ -192,10 +192,6 @@ void process_input() {
     }
 }
 
-float rand_speed(float min, float max) {
-    return rand() / (float)(RAND_MAX / max - min) + min;
-}
-
 void update() {
     // delta time
     float tick = SDL_GetTicks() / MILLISECONDS_IN_SECOND;
@@ -233,12 +229,10 @@ void update() {
             watermelon_translation_vector.x - FRUIT_WIDTH / 2 >= bin_translation_vector.x - BIN_SIZE / 2 + 0.5f &&
             watermelon_translation_vector.y + WATERMELON_HEIGHT / 2 <= bin_translation_vector.y + BIN_SIZE / 2 - 0.2f &&
             watermelon_translation_vector.y - WATERMELON_HEIGHT / 2 >= bin_translation_vector.y - BIN_SIZE / 2 + 0.2f) {
-            //std::cout << "watermelon right limit is: " << watermelon_translation_vector.x + FRUIT_WIDTH / 2 << '\n'
-            //    << "watermelon left limit is: " << watermelon_translation_vector.x - FRUIT_WIDTH / 2 << '\n'
-            //    << "bin right limit is: " << bin_translation_vector.x + BIN_SIZE / 2 - 0.5f << '\n'
-            //    << "bin left limit is: " << bin_translation_vector.x - BIN_SIZE / 2 + 0.5f << '\n';
             g_watermelon_status = CAUGHT;
+
             std::cout << "CAUGHT!!!!!!" << '\n';
+
             g_bin_x = bin_translation_vector.x;
             g_bin_y = bin_translation_vector.y;
             g_apple_x = apple_translation_vector.x;
@@ -268,23 +262,19 @@ void update() {
             g_bin_size = 6.f;
         }
 
-
-
         g_bin_matrix = glm::translate(g_bin_matrix, glm::vec3(g_bin_x, g_bin_y, 0.f));
-        //g_bin_matrix = glm::scale(g_bin_matrix, BIN_INIT_SCALE);
+
+        // the bin scales up once it gets to the origin
         if (g_bin_x <= 0.05f && g_bin_y <= 0.05f) {
             g_bin_matrix = glm::scale(g_bin_matrix, glm::vec3(g_bin_size, g_bin_size, 0.f));
         }
         else {
             g_bin_matrix = glm::scale(g_bin_matrix, BIN_INIT_SCALE);
         }
-        //std::cout << "g_bin_size is: " << g_bin_size << '\n';
 
         g_watermelon_matrix = glm::translate(g_watermelon_matrix, glm::vec3(g_watermelon_x, g_watermelon_y, 0.f));
 
         g_apple_matrix = glm::translate(g_apple_matrix, glm::vec3(g_apple_x, g_apple_y, 0.f));
-
-        // the bin scales up
     }
 
 
