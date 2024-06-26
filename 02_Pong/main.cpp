@@ -54,6 +54,8 @@ constexpr char PADDLE_SPRITE_FILEPATH[] = "assets/paddle.png";
 constexpr float PADDLE_WIDTH = 1.0f;
 constexpr float PADDLE_HEIGHT = 630 / 498.0f;
 constexpr glm::vec3 PADDLE_INIT_SCALE = glm::vec3(PADDLE_WIDTH, PADDLE_HEIGHT, 0.0f);
+constexpr glm::vec3 PADDLE_LEFT_INIT_POS = glm::vec3(-4.9f, 0.0f, 0.0f);
+constexpr glm::vec3 PADDLE_RIGHT_INIT_POS = glm::vec3(4.9f, 0.0f, 0.0f);
 constexpr char BALL_SPRITE_FILEPATH[] = "assets/ball.png";
 constexpr float BALL_SIZE = 0.3f;
 constexpr glm::vec3 BALL_INIT_SCALE = glm::vec3(BALL_SIZE, BALL_SIZE, 0.0f);
@@ -82,17 +84,23 @@ g_ball_texture_id;
 //g_theta_bin_apple = 10.0f,
 //g_theta_apple = 0.0f;
 
-float g_paddle_left_x = -3.0f,
-g_paddle_right_x = 3.0f,
-g_paddle_y = 0.0f;
+//float g_paddle_left_x = -4.9f,
+//g_paddle_right_x = 4.9f,
+//g_paddle_y = 0.0f;
 
-//float g_bin_size = BIN_SIZE;
+float g_paddle_speed = 1.0f;
 
 glm::mat4 g_view_matrix,
 g_paddle_left_matrix,
 g_paddle_right_matrix,
 g_ball_matrix,
 g_projection_matrix;
+
+glm::vec3 g_paddle_left_position = glm::vec3(0.0f);
+glm::vec3 g_paddle_right_position = glm::vec3(0.0f);
+glm::vec3 g_paddle_left_movement = glm::vec3(0.0f);
+glm::vec3 g_paddle_right_movement = glm::vec3(0.0f);
+
 
 GLuint load_texture(const char* filepath) {
     // load the image file
@@ -173,11 +181,77 @@ void initialize() {
 }
 
 void process_input() {
+    g_paddle_left_movement = glm::vec3(0.0f);
+    g_paddle_right_movement = glm::vec3(0.0f);
+
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
             g_game_status = TERMINATED;
         }
+    }
+    //switch (event.type) {
+    //    case SDL_QUIT:
+    //    case SDL_WINDOWEVENT_CLOSE:
+    //        g_game_status = TERMINATED;
+    //        break;
+
+    //    case SDL_KEYDOWN:
+    //        switch (event.key.keysym.sym) {
+    //            case SDLK_UP:
+    //                g_paddle_right_movement.y = -1.0f;
+    //                break;
+
+    //            case SDLK_DOWN:
+    //                g_paddle_right_movement.y = 1.0f;
+    //                break;
+
+    //            case SDLK_w:
+    //                g_paddle_left_movement.y = -1.0f;
+    //                break;
+
+    //            case SDLK_s:
+    //                g_paddle_left_movement.y = 1.0f;
+    //                break;
+
+    //            case SDLK_t:
+    //                break;
+
+    //            default:
+    //                break;
+    //        }
+
+    //    default:
+    //        break;
+    //}
+
+    const Uint8* key_state = SDL_GetKeyboardState(NULL);
+
+    if (key_state[SDL_SCANCODE_DOWN])
+    {
+        g_paddle_right_movement.y = -1.0f;
+        //g_animation_indices = g_george_walking[LEFT];
+    }
+    else if (key_state[SDL_SCANCODE_UP])
+    {
+        g_paddle_right_movement.y = 1.0f;
+        //g_animation_indices = g_george_walking[RIGHT];
+    }
+
+    if (key_state[SDL_SCANCODE_W])
+    {
+        g_paddle_left_movement.y = 1.0f;
+        //g_animation_indices = g_george_walking[UP];
+    }
+    else if (key_state[SDL_SCANCODE_S])
+    {
+        g_paddle_left_movement.y = -1.0f;
+        //g_animation_indices = g_george_walking[DOWN];
+    }
+
+    if (glm::length(g_paddle_left_movement) > 1.0f)
+    {
+        g_paddle_left_movement = glm::normalize(g_paddle_left_movement);
     }
 }
 
@@ -192,6 +266,8 @@ void update() {
     //g_rotation_watermelon.z += ROT_INCREMENT_WATERMELON * delta_time;
     //g_theta_bin_apple += 1.7f * delta_time;
     //g_theta_apple += 4.5f * delta_time;
+    g_paddle_left_position += g_paddle_left_movement * g_paddle_speed * delta_time;
+    g_paddle_right_position += g_paddle_right_movement * g_paddle_speed * delta_time;
 
     // model matrix reset
     g_paddle_left_matrix = glm::mat4(1.0f);
@@ -199,7 +275,10 @@ void update() {
     g_ball_matrix = glm::mat4(1.0f);
 
     // transformation
-    g_paddle_left_matrix = glm::translate(g_paddle_left_matrix, glm::vec3(g_paddle_left_x, g_paddle_y, 0.f));
+    g_paddle_left_matrix = glm::translate(g_paddle_left_matrix, PADDLE_LEFT_INIT_POS);
+    g_paddle_left_matrix = glm::translate(g_paddle_left_matrix, g_paddle_left_position);
+    g_paddle_right_matrix = glm::translate(g_paddle_right_matrix, PADDLE_RIGHT_INIT_POS);
+    g_paddle_right_matrix = glm::translate(g_paddle_right_matrix, g_paddle_right_position);
     g_ball_matrix = glm::scale(g_ball_matrix, BALL_INIT_SCALE);
     //if (g_watermelon_status == ESCAPING) {
     //    // watermelon move in circle and rotate
