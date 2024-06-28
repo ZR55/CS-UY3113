@@ -413,7 +413,7 @@ void update() {
                     g_balls_movement[i].x *= -1;
                 }
                 // right player lose
-                else {
+                else if (g_balls_position[i].x >= WIDTH_BOUND+0.5f) {
                     g_game_status = GAMEOVER;
                     g_game_winner = PLAYER1;
                 }
@@ -428,7 +428,7 @@ void update() {
                     g_balls_movement[i].x *= -1;
                 }
                 // left player lose
-                else {
+                else if (g_balls_position[i].x <= -WIDTH_BOUND-0.5f) {
                     g_game_status = GAMEOVER;
                     g_game_winner = PLAYER2;
                 }
