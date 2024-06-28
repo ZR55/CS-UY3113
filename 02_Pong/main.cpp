@@ -20,6 +20,7 @@
 #include <iostream>
 #include <SDL.h>
 #include <SDL_opengl.h>
+#include <ctime>
 #include "glm/mat4x4.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "ShaderProgram.h"
@@ -117,7 +118,7 @@ g_winner1_texture_id,
 g_winner2_texture_id;
 
 // objects
-float g_paddle_speed = 2.0f;
+float g_paddle_speed = 5.0f;
 float g_ball_speed = 1.0f;
 
 glm::mat4 g_view_matrix,
@@ -136,7 +137,8 @@ glm::vec3 g_paddle_left_movement = glm::vec3(0.0f);
 glm::vec3 g_paddle_left_movement_one = glm::vec3(0.0f, 1.0f, 0.0f);
 glm::vec3 g_paddle_right_movement = glm::vec3(0.0f);
 glm::vec3 g_balls_position[3] = { glm::vec3(0.0f) };
-glm::vec3 g_balls_movement[3] = { glm::vec3(2.0f, 1.7f, 0.0f), glm::vec3(-1.5f, 1.5f, 0.0f), glm::vec3(-1.f, -1.f, 0.0f)};
+//glm::vec3 g_balls_movement[3] = { glm::vec3(2.0f, 1.7f, 0.0f), glm::vec3(-1.5f, 1.5f, 0.0f), glm::vec3(-1.f, -1.f, 0.0f)};
+glm::vec3 g_balls_movement[3] = { glm::vec3(0.0f) };
 glm::vec3 g_balls_rotation[3] = { glm::vec3(0.0f) };
 
 
@@ -164,6 +166,10 @@ GLuint load_texture(const char* filepath) {
     stbi_image_free(image);
 
     return textureID;
+}
+
+float rand_speed(float min, float max) {
+    return min + (rand() % static_cast<int>(max - min + 1));
 }
 
 void initialize() {
@@ -196,6 +202,21 @@ void initialize() {
     glViewport(VIEWPORT_X, VIEWPORT_Y, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
 
     g_shader_program.load(V_SHADER_PATH, F_SHADER_PATH);
+
+    // randomize start speed
+    srand(time(NULL));
+    for (int i = 0; i < 3; i++) {
+        float temp[2];
+        for (int j = 0; j < 2; j++) {
+            if (rand() % 100 >= 50) {
+                temp[j] = rand_speed(0.7, 2.3);
+            }
+            else {
+                temp[j] = rand_speed(-2.3, -0.7);
+            }
+        }
+        g_balls_movement[i] = glm::vec3(temp[0], temp[1], 0.0f);
+    }
 
     g_view_matrix = glm::mat4(1.0f);
     g_paddle_left_matrix = glm::mat4(1.0f);
@@ -385,11 +406,9 @@ void update() {
                     // put the ball back on the paddle   
                     g_balls_position[i].x = PADDLE_RIGHT_INIT_POS.x - PADDLE_WIDTH / 2 - BALLS_WIDTH[i] / 2;
                     g_balls_movement[i].x *= -1;
-                    LOG("BOUNCE RIGHT!!\n\n");
                 }
                 // right player lose
                 else {
-                    LOG("right lose!!\n\n");
                     g_game_status = GAMEOVER;
                     g_game_winner = PLAYER1;
                 }
@@ -402,7 +421,6 @@ void update() {
                     g_balls_position[i].y >= g_paddle_left_position.y - PADDLE_LEFT_HEIGHT / 2) {
                     g_balls_position[i].x = PADDLE_LEFT_INIT_POS.x + PADDLE_WIDTH / 2 + BALLS_WIDTH[i] / 2;
                     g_balls_movement[i].x *= -1;
-                    LOG("BOUNCE LEFT!!\n\n");
                 }
                 // left player lose
                 else {
