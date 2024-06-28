@@ -106,7 +106,7 @@ float g_previous_tick = 0.0f;
 // texture
 GLuint g_paddle_left_texture_id,
 g_paddle_right_texture_id,
-g_ball_texture_id,
+g_ball_texture_id[],
 g_player1_texture_id,
 g_player2_texture_id,
 g_winner1_texture_id,
@@ -249,6 +249,12 @@ void process_input() {
                         //g_paddle_left_movement.y = 1.0f;
                     }
                     break;
+                case SDLK_1:
+                    break;
+                case SDLK_2:
+                    break;
+                case SDLK_3:
+                    break;
 
                 default:
                     break;
@@ -313,13 +319,7 @@ void update() {
 
         // game logic - accumulators
         // left paddle
-        std::cout << "game mode = " << g_game_mode << "\n";
         if (g_game_mode == ONE) {
-            //std::cout << "paddle movement y = " << g_paddle_left_movement.y << "\n";
-            //std::cout << "top bound is " << HEIGHT_BOUND - PADDLE_LEFT_HEIGHT / 2 << "\n";
-            //std::cout << "paddle position y = " << g_paddle_left_position.y << "\n";
-
-
             if (g_paddle_left_position.y > HEIGHT_BOUND - PADDLE_LEFT_HEIGHT / 2) {
                 g_paddle_left_position.y = HEIGHT_BOUND - PADDLE_LEFT_HEIGHT / 2;
                 g_paddle_left_movement_one.y *= -1;
@@ -329,10 +329,6 @@ void update() {
                 g_paddle_left_movement_one.y *= -1;
             }
             g_paddle_left_position += g_paddle_left_movement_one * g_paddle_speed * delta_time;
-            std::cout << "paddle position y after = " << g_paddle_left_position.y << "\n";
-
-            std::cout << "paddle movement y after = " << g_paddle_left_movement.y << "\n";
-
         }
         else {
             if (g_paddle_left_position.y >= HEIGHT_BOUND - PADDLE_LEFT_HEIGHT / 2) {
