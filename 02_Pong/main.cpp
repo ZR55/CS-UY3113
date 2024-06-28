@@ -79,13 +79,17 @@ constexpr float ROT_INCREMENT = 8.0f;
 
 constexpr char PLAYER_ONE_SPRITE_FILEPATH[] = "assets/player1.png";
 constexpr char PLAYER_TWO_SPRITE_FILEPATH[] = "assets/player2.png";
+constexpr char INSTR_SPRITE_FILEPATH[] = "assets/instruction.png";
 constexpr float SIGN_HEIGHT = 1.0f;
 constexpr float SIGN1_WIDTH = 326 / 221.0f * SIGN_HEIGHT;
 constexpr float SIGN2_WIDTH = 401 / 221.0f * SIGN_HEIGHT;
-constexpr glm::vec3 PLAYER_ONE_INIT_POS = glm::vec3(-1.5f, 3.0f, 0.0f);
+constexpr float SIGN3_WIDTH = 810 / 220.0f * SIGN_HEIGHT;
+constexpr glm::vec3 PLAYER_ONE_INIT_POS = glm::vec3(-3.0f, 3.0f, 0.0f);
 constexpr glm::vec3 PLAYER_ONE_INIT_SCALE = glm::vec3(SIGN1_WIDTH, SIGN_HEIGHT, 0.0f);
-constexpr glm::vec3 PLAYER_TWO_INIT_POS = glm::vec3(1.5f, 3.0f, 0.0f);
+constexpr glm::vec3 PLAYER_TWO_INIT_POS = glm::vec3(3.0f, 3.0f, 0.0f);
 constexpr glm::vec3 PLAYER_TWO_INIT_SCALE = glm::vec3(SIGN2_WIDTH, SIGN_HEIGHT, 0.0f);
+constexpr glm::vec3 INSTR_INIT_POS = glm::vec3(0.0f, 2.0f, 0.0f);
+constexpr glm::vec3 INSTR_INIT_SCALE = glm::vec3(SIGN3_WIDTH, SIGN_HEIGHT, 0.0f);
 
 constexpr char WINNER_ONE_SPRITE_FILEPATH[] = "assets/won1.png";
 constexpr char WINNER_TWO_SPRITE_FILEPATH[] = "assets/won2.png";
@@ -114,6 +118,7 @@ g_paddle_right_texture_id,
 g_balls_texture_id[3],
 g_player1_texture_id,
 g_player2_texture_id,
+g_instr_texture_id,
 g_winner1_texture_id,
 g_winner2_texture_id;
 
@@ -127,6 +132,7 @@ g_paddle_right_matrix,
 g_balls_matrix[3],
 g_player1_matrix,
 g_player2_matrix,
+g_instr_matrix,
 g_winner1_matrix,
 g_winner2_matrix,
 g_projection_matrix;
@@ -226,6 +232,7 @@ void initialize() {
     }
     g_player1_matrix = glm::mat4(1.0f);
     g_player2_matrix = glm::mat4(1.0f);
+    g_instr_matrix = glm::mat4(1.0f);
     g_winner1_matrix = glm::mat4(1.0f);
     g_winner2_matrix = glm::mat4(1.0f);
     g_projection_matrix = glm::ortho(-5.0f, 5.0f, -3.75f, 3.75f, -1.0f, 1.0f);
@@ -245,6 +252,7 @@ void initialize() {
     //g_balls_texture_id[] = {load_texture(BALL_SPRITE_FILEPATH);
     g_player1_texture_id = load_texture(PLAYER_ONE_SPRITE_FILEPATH);
     g_player2_texture_id = load_texture(PLAYER_TWO_SPRITE_FILEPATH);
+    g_instr_texture_id = load_texture(INSTR_SPRITE_FILEPATH);
     g_winner1_texture_id = load_texture(WINNER_ONE_SPRITE_FILEPATH);
     g_winner2_texture_id = load_texture(WINNER_TWO_SPRITE_FILEPATH);
 
@@ -441,6 +449,7 @@ void update() {
         }
         g_player1_matrix = glm::mat4(1.0f);
         g_player2_matrix = glm::mat4(1.0f);
+        g_instr_matrix = glm::mat4(1.0f);
 
         // transformation
         for (int i = 0; i < g_ball_number; i++) {
@@ -462,6 +471,9 @@ void update() {
 
         g_player2_matrix = glm::translate(g_player2_matrix, PLAYER_TWO_INIT_POS);
         g_player2_matrix = glm::scale(g_player2_matrix, PLAYER_TWO_INIT_SCALE);
+
+        g_instr_matrix = glm::translate(g_instr_matrix, INSTR_INIT_POS);
+        g_instr_matrix = glm::scale(g_instr_matrix, INSTR_INIT_SCALE);
 
     }
 
@@ -503,6 +515,7 @@ void render() {
         draw_object(g_paddle_right_matrix, g_paddle_right_texture_id);
         draw_object(g_player1_matrix, g_player1_texture_id);
         draw_object(g_player2_matrix, g_player2_texture_id);
+        draw_object(g_instr_matrix, g_instr_texture_id);
         for (int i = 0; i < g_ball_number; i++) {
             draw_object(g_balls_matrix[i], g_balls_texture_id[i]);
 
