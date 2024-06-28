@@ -35,13 +35,13 @@ enum GameMode {ONE, TWO};
 constexpr int WINDOW_WIDTH = 640,
 WINDOW_HEIGHT = 480;
 
-constexpr float WIDTH_BOUND = 4.9f,
+constexpr float WIDTH_BOUND = 4.5f,
 HEIGHT_BOUND = 3.6f;
 
 // general
-constexpr float BG_RED = 193 / 255.0f,
-BG_BLUE = 193 / 255.0f,
-BG_GREEN = 225 / 255.0f,
+constexpr float BG_RED = 255 / 255.0f,
+BG_BLUE = 186 / 255.0f,
+BG_GREEN = 186 / 255.0f,
 BG_OPACITY = 1.0f;
 
 constexpr int VIEWPORT_X = 0,
@@ -57,17 +57,20 @@ constexpr float HANGING_OFFSET = 0.01f;
 constexpr char V_SHADER_PATH[] = "shaders/vertex_textured.glsl",
 F_SHADER_PATH[] = "shaders/fragment_textured.glsl";
 
-constexpr char PADDLE_SPRITE_FILEPATH[] = "assets/paddle.png";
-constexpr float PADDLE_WIDTH = 0.3f;
-constexpr float PADDLE_HEIGHT = 630 / 108.0f * PADDLE_WIDTH;
-constexpr glm::vec3 PADDLE_INIT_SCALE = glm::vec3(PADDLE_WIDTH, PADDLE_HEIGHT, 0.0f);
+constexpr float PADDLE_WIDTH = 1.0f;
+constexpr char PADDLE_LEFT_SPRITE_FILEPATH[] = "assets/left.png";
+constexpr float PADDLE_LEFT_HEIGHT = 324 / 157.0f * PADDLE_WIDTH;
+constexpr char PADDLE_RIGHT_SPRITE_FILEPATH[] = "assets/right.png";
+constexpr float PADDLE_RIGHT_HEIGHT = 327 / 141.0f * PADDLE_WIDTH;
+constexpr glm::vec3 PADDLE_LEFT_INIT_SCALE = glm::vec3(PADDLE_WIDTH, PADDLE_LEFT_HEIGHT, 0.0f);
+constexpr glm::vec3 PADDLE_RIGHT_INIT_SCALE = glm::vec3(PADDLE_WIDTH, PADDLE_RIGHT_HEIGHT, 0.0f);
 constexpr glm::vec3 PADDLE_LEFT_INIT_POS = glm::vec3(-WIDTH_BOUND, 0.0f, 0.0f);
 constexpr glm::vec3 PADDLE_RIGHT_INIT_POS = glm::vec3(WIDTH_BOUND, 0.0f, 0.0f);
-constexpr char BALL_SPRITE_FILEPATH[] = "assets/ball.png";
-constexpr float BALL_SIZE = 0.3f;
-constexpr glm::vec3 BALL_INIT_SCALE = glm::vec3(BALL_SIZE, BALL_SIZE, 0.0f);
-//constexpr float BALL_INIT_SPEED_X = 2.0f;
-//constexpr float BALL_INIT_SPEED_Y = 1.7f;
+constexpr char BALL_SPRITE_FILEPATH[] = "assets/bomb.png";
+constexpr float BALL_WIDTH = 0.5f;
+constexpr float BALL_HEIGHT = 720.0f / 851 * BALL_WIDTH;
+constexpr glm::vec3 BALL_INIT_SCALE = glm::vec3(BALL_WIDTH, BALL_HEIGHT, 0.0f);
+constexpr float ROT_INCREMENT = 8.0f;
 
 constexpr int NUMBER_OF_TEXTURES = 1;
 constexpr GLint LEVEL_OF_DETAIL = 0;
@@ -104,6 +107,7 @@ glm::vec3 g_paddle_left_movement = glm::vec3(0.0f);
 glm::vec3 g_paddle_left_movement_one = glm::vec3(0.0f, 1.0f, 0.0f);
 glm::vec3 g_paddle_right_movement = glm::vec3(0.0f);
 glm::vec3 g_ball_movement = glm::vec3(2.0f, 1.7f, 0.0f);
+glm::vec3 g_ball_rotation = glm::vec3(0.0f);
 
 
 GLuint load_texture(const char* filepath) {
@@ -176,8 +180,8 @@ void initialize() {
 
     glClearColor(BG_RED, BG_GREEN, BG_BLUE, BG_OPACITY);
 
-    g_paddle_left_texture_id = load_texture(PADDLE_SPRITE_FILEPATH);
-    g_paddle_right_texture_id = load_texture(PADDLE_SPRITE_FILEPATH);
+    g_paddle_left_texture_id = load_texture(PADDLE_LEFT_SPRITE_FILEPATH);
+    g_paddle_right_texture_id = load_texture(PADDLE_RIGHT_SPRITE_FILEPATH);
     g_ball_texture_id = load_texture(BALL_SPRITE_FILEPATH);
 
     glEnable(GL_BLEND);
@@ -264,23 +268,17 @@ void update() {
     // left paddle
     std::cout << "game mode = " << g_game_mode << "\n";
     if (g_game_mode == ONE) {
-        //if (g_paddle_left_movement.y >= 0) {
-        //    g_paddle_left_movement.y = 1.0f;
-        //}
-        //else {
-        //    g_paddle_left_movement.y = -1.0f;
-        //}
-        std::cout << "paddle movement y = " << g_paddle_left_movement.y << "\n";
-        std::cout << "top bound is " << HEIGHT_BOUND - PADDLE_HEIGHT / 2 << "\n";
-        std::cout << "paddle position y = " << g_paddle_left_position.y << "\n";
+        //std::cout << "paddle movement y = " << g_paddle_left_movement.y << "\n";
+        //std::cout << "top bound is " << HEIGHT_BOUND - PADDLE_LEFT_HEIGHT / 2 << "\n";
+        //std::cout << "paddle position y = " << g_paddle_left_position.y << "\n";
 
 
-        if (g_paddle_left_position.y > HEIGHT_BOUND - PADDLE_HEIGHT / 2) {
-            g_paddle_left_position.y = HEIGHT_BOUND - PADDLE_HEIGHT / 2;
+        if (g_paddle_left_position.y > HEIGHT_BOUND - PADDLE_LEFT_HEIGHT / 2) {
+            g_paddle_left_position.y = HEIGHT_BOUND - PADDLE_LEFT_HEIGHT / 2;
             g_paddle_left_movement_one.y *= -1;
         }
-        else if (g_paddle_left_position.y < -HEIGHT_BOUND + PADDLE_HEIGHT / 2) {
-            g_paddle_left_position.y = -HEIGHT_BOUND + PADDLE_HEIGHT / 2;
+        else if (g_paddle_left_position.y < -HEIGHT_BOUND + PADDLE_LEFT_HEIGHT / 2) {
+            g_paddle_left_position.y = -HEIGHT_BOUND + PADDLE_LEFT_HEIGHT / 2;
             g_paddle_left_movement_one.y *= -1;
         }
         g_paddle_left_position += g_paddle_left_movement_one * g_paddle_speed * delta_time;
@@ -290,48 +288,48 @@ void update() {
 
     }
     else {
-        if (g_paddle_left_position.y >= HEIGHT_BOUND - PADDLE_HEIGHT / 2) {
-            g_paddle_left_position.y = HEIGHT_BOUND - PADDLE_HEIGHT / 2 - HANGING_OFFSET;
+        if (g_paddle_left_position.y >= HEIGHT_BOUND - PADDLE_LEFT_HEIGHT / 2) {
+            g_paddle_left_position.y = HEIGHT_BOUND - PADDLE_LEFT_HEIGHT / 2 - HANGING_OFFSET;
         }
-        else if (g_paddle_left_position.y <= -HEIGHT_BOUND + PADDLE_HEIGHT / 2) {
-            g_paddle_left_position.y = -HEIGHT_BOUND + PADDLE_HEIGHT / 2 + HANGING_OFFSET;
+        else if (g_paddle_left_position.y <= -HEIGHT_BOUND + PADDLE_LEFT_HEIGHT / 2) {
+            g_paddle_left_position.y = -HEIGHT_BOUND + PADDLE_LEFT_HEIGHT / 2 + HANGING_OFFSET;
         }
         else {
             g_paddle_left_position += g_paddle_left_movement * g_paddle_speed * delta_time;
         }
     }
     // right paddle
-    if (g_paddle_right_position.y > HEIGHT_BOUND - PADDLE_HEIGHT / 2) {
-        g_paddle_right_position.y = HEIGHT_BOUND - PADDLE_HEIGHT / 2;
+    if (g_paddle_right_position.y > HEIGHT_BOUND - PADDLE_RIGHT_HEIGHT / 2) {
+        g_paddle_right_position.y = HEIGHT_BOUND - PADDLE_RIGHT_HEIGHT / 2;
     }
-    else if (g_paddle_right_position.y < -HEIGHT_BOUND + PADDLE_HEIGHT / 2) {
-        g_paddle_right_position.y = -HEIGHT_BOUND + PADDLE_HEIGHT / 2;
+    else if (g_paddle_right_position.y < -HEIGHT_BOUND + PADDLE_RIGHT_HEIGHT / 2) {
+        g_paddle_right_position.y = -HEIGHT_BOUND + PADDLE_RIGHT_HEIGHT / 2;
     }
     else {
         g_paddle_right_position += g_paddle_right_movement * g_paddle_speed * delta_time;
     }
     //ball
     g_ball_position += g_ball_movement * g_ball_speed * delta_time;
-    //std::cout << glm::to_string(g_paddle_right_position) << std::endl;
+    g_ball_rotation.z += ROT_INCREMENT * delta_time;
 
     // collision detection
     // up and bottom
     if (g_ball_position.y >= HEIGHT_BOUND) {
         // put it back to the max position to avoid hanging
-        g_ball_position.y = HEIGHT_BOUND - BALL_SIZE / 2;
+        g_ball_position.y = HEIGHT_BOUND - BALL_HEIGHT / 2;
         g_ball_movement.y *= -1;
     }
     else if (g_ball_position.y <= -HEIGHT_BOUND) {
-        g_ball_position.y = -HEIGHT_BOUND + BALL_SIZE / 2;
+        g_ball_position.y = -HEIGHT_BOUND + BALL_HEIGHT / 2;
         g_ball_movement.y *= -1;
     }
     // right side
     if (g_ball_position.x >= PADDLE_RIGHT_INIT_POS.x - PADDLE_WIDTH / 2) {
         // bounce on the right paddle
-        if (g_ball_position.y <= g_paddle_right_position.y + PADDLE_HEIGHT / 2 &&
-            g_ball_position.y >= g_paddle_right_position.y - PADDLE_HEIGHT / 2) {
+        if (g_ball_position.y <= g_paddle_right_position.y + PADDLE_RIGHT_HEIGHT / 2 &&
+            g_ball_position.y >= g_paddle_right_position.y - PADDLE_RIGHT_HEIGHT / 2) {
             // put the ball back on the paddle   
-            g_ball_position.x = PADDLE_RIGHT_INIT_POS.x - PADDLE_WIDTH / 2 - BALL_SIZE / 2;
+            g_ball_position.x = PADDLE_RIGHT_INIT_POS.x - PADDLE_WIDTH / 2 - BALL_WIDTH / 2;
             g_ball_movement.x *= -1;
             LOG("BOUNCE RIGHT!!\n\n");
         }
@@ -341,12 +339,12 @@ void update() {
         }
 
     }
-    
+    // left side
     if (g_ball_position.x <= PADDLE_LEFT_INIT_POS.x + PADDLE_WIDTH / 2) {
         // bounce on the left paddle
-        if (g_ball_position.y <= g_paddle_left_position.y + PADDLE_HEIGHT / 2 &&
-            g_ball_position.y >= g_paddle_left_position.y - PADDLE_HEIGHT / 2) {
-            g_ball_position.x = PADDLE_LEFT_INIT_POS.x + PADDLE_WIDTH / 2 + BALL_SIZE / 2;
+        if (g_ball_position.y <= g_paddle_left_position.y + PADDLE_LEFT_HEIGHT / 2 &&
+            g_ball_position.y >= g_paddle_left_position.y - PADDLE_LEFT_HEIGHT / 2) {
+            g_ball_position.x = PADDLE_LEFT_INIT_POS.x + PADDLE_WIDTH / 2 + BALL_WIDTH / 2;
             g_ball_movement.x *= -1;
             LOG("BOUNCE LEFT!!\n\n");
         }
@@ -357,17 +355,6 @@ void update() {
 
     }
 
-    //float x_distance = fabs(g_flower_position.x - CUP_INIT_POS.x) - ((FLOWER_INIT_SCA.x + CUP_INIT_SCA.x) / 2.0f);
-    //float y_distance = fabs(g_flower_position.y - CUP_INIT_POS.y) - ((FLOWER_INIT_SCA.y + CUP_INIT_SCA.y) / 2.0f);
-    //std::cout << "x = " << g_ball_position.x << "\n";
-    //std::cout << "paddle right BOUND " << PADDLE_RIGHT_INIT_POS.x - PADDLE_WIDTH / 2 << "\n";
-    //std::cout << "paddle left BOUND " << PADDLE_LEFT_INIT_POS.x + PADDLE_WIDTH / 2 << "\n";
-    //std::cout << "y = " << g_ball_position.y << "\n";
-    //std::cout << "paddle right top bound =  " << g_paddle_right_position.y + PADDLE_HEIGHT / 2 << "\n";
-    //std::cout << "paddle right bottom bound =  " << g_paddle_right_position.y - PADDLE_HEIGHT / 2 << "\n";
-
-
-
     // model matrix reset
     g_paddle_left_matrix = glm::mat4(1.0f);
     g_paddle_right_matrix = glm::mat4(1.0f);
@@ -375,13 +362,14 @@ void update() {
 
     // transformation
     g_ball_matrix = glm::translate(g_ball_matrix, g_ball_position);
+    g_ball_matrix = glm::rotate(g_ball_matrix, g_ball_rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
     g_ball_matrix = glm::scale(g_ball_matrix, BALL_INIT_SCALE);
     g_paddle_left_matrix = glm::translate(g_paddle_left_matrix, PADDLE_LEFT_INIT_POS);
     g_paddle_left_matrix = glm::translate(g_paddle_left_matrix, g_paddle_left_position);
-    g_paddle_left_matrix = glm::scale(g_paddle_left_matrix, PADDLE_INIT_SCALE);
+    g_paddle_left_matrix = glm::scale(g_paddle_left_matrix, PADDLE_LEFT_INIT_SCALE);
     g_paddle_right_matrix = glm::translate(g_paddle_right_matrix, PADDLE_RIGHT_INIT_POS);
     g_paddle_right_matrix = glm::translate(g_paddle_right_matrix, g_paddle_right_position);
-    g_paddle_right_matrix = glm::scale(g_paddle_right_matrix, PADDLE_INIT_SCALE);
+    g_paddle_right_matrix = glm::scale(g_paddle_right_matrix, PADDLE_LEFT_INIT_SCALE);
 }
 
 void draw_object(glm::mat4& object_g_model_matrix, GLuint& object_texture_id) {
