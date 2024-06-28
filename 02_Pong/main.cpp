@@ -143,7 +143,6 @@ glm::vec3 g_paddle_left_movement = glm::vec3(0.0f);
 glm::vec3 g_paddle_left_movement_one = glm::vec3(0.0f, 1.0f, 0.0f);
 glm::vec3 g_paddle_right_movement = glm::vec3(0.0f);
 glm::vec3 g_balls_position[3] = { glm::vec3(0.0f) };
-//glm::vec3 g_balls_movement[3] = { glm::vec3(2.0f, 1.7f, 0.0f), glm::vec3(-1.5f, 1.5f, 0.0f), glm::vec3(-1.f, -1.f, 0.0f)};
 glm::vec3 g_balls_movement[3] = { glm::vec3(0.0f) };
 glm::vec3 g_balls_rotation[3] = { glm::vec3(0.0f) };
 
@@ -249,7 +248,6 @@ void initialize() {
     for (int i = 0; i < 3; i++) {
         g_balls_texture_id[i] = load_texture(BALLS_SPRITE_FILEPATH[i]);
     }
-    //g_balls_texture_id[] = {load_texture(BALL_SPRITE_FILEPATH);
     g_player1_texture_id = load_texture(PLAYER_ONE_SPRITE_FILEPATH);
     g_player2_texture_id = load_texture(PLAYER_TWO_SPRITE_FILEPATH);
     g_instr_texture_id = load_texture(INSTR_SPRITE_FILEPATH);
@@ -284,7 +282,6 @@ void process_input() {
                     if (g_game_mode == ONE) g_game_mode = TWO;
                     else {
                         g_game_mode = ONE;
-                        //g_paddle_left_movement.y = 1.0f;
                     }
                     break;
                 case SDLK_1:
