@@ -27,8 +27,9 @@
 #include "glm/ext.hpp"
 
 /* enums */
-enum AppStatus {RUNNING, TERMINATED};
+enum AppStatus {RUNNING, GAMEOVER, TERMINATED};
 enum GameMode {ONE, TWO};
+enum Winner {PLAYER1, PLAYER2};
 
 /* constants */
 // The size of our literal game window
@@ -72,6 +73,22 @@ constexpr float BALL_HEIGHT = 720.0f / 851 * BALL_WIDTH;
 constexpr glm::vec3 BALL_INIT_SCALE = glm::vec3(BALL_WIDTH, BALL_HEIGHT, 0.0f);
 constexpr float ROT_INCREMENT = 8.0f;
 
+constexpr char PLAYER_ONE_SPRITE_FILEPATH[] = "assets/player1.png";
+constexpr char PLAYER_TWO_SPRITE_FILEPATH[] = "assets/player2.png";
+constexpr float SIGN_HEIGHT = 1.0f;
+constexpr float SIGN1_WIDTH = 326 / 221.0f * SIGN_HEIGHT;
+constexpr float SIGN2_WIDTH = 401 / 221.0f * SIGN_HEIGHT;
+constexpr glm::vec3 PLAYER_ONE_INIT_POS = glm::vec3(-1.5f, 3.0f, 0.0f);
+constexpr glm::vec3 PLAYER_ONE_INIT_SCALE = glm::vec3(SIGN1_WIDTH, SIGN_HEIGHT, 0.0f);
+constexpr glm::vec3 PLAYER_TWO_INIT_POS = glm::vec3(1.5f, 3.0f, 0.0f);
+constexpr glm::vec3 PLAYER_TWO_INIT_SCALE = glm::vec3(SIGN2_WIDTH, SIGN_HEIGHT, 0.0f);
+
+constexpr char WINNER_ONE_SPRITE_FILEPATH[] = "assets/won1.png";
+constexpr char WINNER_TWO_SPRITE_FILEPATH[] = "assets/won2.png";
+constexpr float WIN_SIGN_SIZE = 5.0f;
+constexpr glm::vec3 WIN_SIGN_INIT_SCALE = glm::vec3(WIN_SIGN_SIZE, WIN_SIGN_SIZE, 0.0f);
+
+
 constexpr int NUMBER_OF_TEXTURES = 1;
 constexpr GLint LEVEL_OF_DETAIL = 0;
 constexpr GLint TEXTURE_BORDER = 0;
@@ -81,6 +98,7 @@ constexpr GLint TEXTURE_BORDER = 0;
 SDL_Window* g_display_window = nullptr;
 AppStatus g_game_status = RUNNING;
 GameMode g_game_mode = TWO;
+Winner g_game_winner;
 ShaderProgram g_shader_program = ShaderProgram();
 
 float g_previous_tick = 0.0f;
@@ -88,7 +106,11 @@ float g_previous_tick = 0.0f;
 // texture
 GLuint g_paddle_left_texture_id,
 g_paddle_right_texture_id,
-g_ball_texture_id;
+g_ball_texture_id,
+g_player1_texture_id,
+g_player2_texture_id,
+g_winner1_texture_id,
+g_winner2_texture_id;
 
 // objects
 float g_paddle_speed = 2.0f;
@@ -98,6 +120,10 @@ glm::mat4 g_view_matrix,
 g_paddle_left_matrix,
 g_paddle_right_matrix,
 g_ball_matrix,
+g_player1_matrix,
+g_player2_matrix,
+g_winner1_matrix,
+g_winner2_matrix,
 g_projection_matrix;
 
 glm::vec3 g_paddle_left_position = glm::vec3(0.0f);
@@ -171,6 +197,10 @@ void initialize() {
     g_paddle_left_matrix = glm::mat4(1.0f);
     g_paddle_right_matrix = glm::mat4(1.0f);
     g_ball_matrix = glm::mat4(1.0f);
+    g_player1_matrix = glm::mat4(1.0f);
+    g_player2_matrix = glm::mat4(1.0f);
+    g_winner1_matrix = glm::mat4(1.0f);
+    g_winner2_matrix = glm::mat4(1.0f);
     g_projection_matrix = glm::ortho(-5.0f, 5.0f, -3.75f, 3.75f, -1.0f, 1.0f);
 
     g_shader_program.set_projection_matrix(g_projection_matrix);
@@ -183,6 +213,10 @@ void initialize() {
     g_paddle_left_texture_id = load_texture(PADDLE_LEFT_SPRITE_FILEPATH);
     g_paddle_right_texture_id = load_texture(PADDLE_RIGHT_SPRITE_FILEPATH);
     g_ball_texture_id = load_texture(BALL_SPRITE_FILEPATH);
+    g_player1_texture_id = load_texture(PLAYER_ONE_SPRITE_FILEPATH);
+    g_player2_texture_id = load_texture(PLAYER_TWO_SPRITE_FILEPATH);
+    g_winner1_texture_id = load_texture(WINNER_ONE_SPRITE_FILEPATH);
+    g_winner2_texture_id = load_texture(WINNER_TWO_SPRITE_FILEPATH);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -259,117 +293,144 @@ void process_input() {
 }
 
 void update() {
-    // delta time
-    float tick = SDL_GetTicks() / MILLISECONDS_IN_SECOND;
-    float delta_time = tick - g_previous_tick;
-    g_previous_tick = tick;
+    if (g_game_status == GAMEOVER) {
+        g_winner1_matrix = glm::mat4(1.0f);
+        g_winner2_matrix = glm::mat4(1.0f);
 
-    // game logic - accumulators
-    // left paddle
-    std::cout << "game mode = " << g_game_mode << "\n";
-    if (g_game_mode == ONE) {
-        //std::cout << "paddle movement y = " << g_paddle_left_movement.y << "\n";
-        //std::cout << "top bound is " << HEIGHT_BOUND - PADDLE_LEFT_HEIGHT / 2 << "\n";
-        //std::cout << "paddle position y = " << g_paddle_left_position.y << "\n";
-
-
-        if (g_paddle_left_position.y > HEIGHT_BOUND - PADDLE_LEFT_HEIGHT / 2) {
-            g_paddle_left_position.y = HEIGHT_BOUND - PADDLE_LEFT_HEIGHT / 2;
-            g_paddle_left_movement_one.y *= -1;
-        }
-        else if (g_paddle_left_position.y < -HEIGHT_BOUND + PADDLE_LEFT_HEIGHT / 2) {
-            g_paddle_left_position.y = -HEIGHT_BOUND + PADDLE_LEFT_HEIGHT / 2;
-            g_paddle_left_movement_one.y *= -1;
-        }
-        g_paddle_left_position += g_paddle_left_movement_one * g_paddle_speed * delta_time;
-        std::cout << "paddle position y after = " << g_paddle_left_position.y << "\n";
-
-        std::cout << "paddle movement y after = " << g_paddle_left_movement.y << "\n";
-
-    }
-    else {
-        if (g_paddle_left_position.y >= HEIGHT_BOUND - PADDLE_LEFT_HEIGHT / 2) {
-            g_paddle_left_position.y = HEIGHT_BOUND - PADDLE_LEFT_HEIGHT / 2 - HANGING_OFFSET;
-        }
-        else if (g_paddle_left_position.y <= -HEIGHT_BOUND + PADDLE_LEFT_HEIGHT / 2) {
-            g_paddle_left_position.y = -HEIGHT_BOUND + PADDLE_LEFT_HEIGHT / 2 + HANGING_OFFSET;
+        if (g_game_winner == PLAYER1) {
+            g_winner1_matrix = glm::scale(g_winner1_matrix, WIN_SIGN_INIT_SCALE);
         }
         else {
-            g_paddle_left_position += g_paddle_left_movement * g_paddle_speed * delta_time;
-        }
-    }
-    // right paddle
-    if (g_paddle_right_position.y > HEIGHT_BOUND - PADDLE_RIGHT_HEIGHT / 2) {
-        g_paddle_right_position.y = HEIGHT_BOUND - PADDLE_RIGHT_HEIGHT / 2;
-    }
-    else if (g_paddle_right_position.y < -HEIGHT_BOUND + PADDLE_RIGHT_HEIGHT / 2) {
-        g_paddle_right_position.y = -HEIGHT_BOUND + PADDLE_RIGHT_HEIGHT / 2;
-    }
-    else {
-        g_paddle_right_position += g_paddle_right_movement * g_paddle_speed * delta_time;
-    }
-    //ball
-    g_ball_position += g_ball_movement * g_ball_speed * delta_time;
-    g_ball_rotation.z += ROT_INCREMENT * delta_time;
+            g_winner2_matrix = glm::scale(g_winner2_matrix, WIN_SIGN_INIT_SCALE);
 
-    // collision detection
-    // up and bottom
-    if (g_ball_position.y >= HEIGHT_BOUND) {
-        // put it back to the max position to avoid hanging
-        g_ball_position.y = HEIGHT_BOUND - BALL_HEIGHT / 2;
-        g_ball_movement.y *= -1;
-    }
-    else if (g_ball_position.y <= -HEIGHT_BOUND) {
-        g_ball_position.y = -HEIGHT_BOUND + BALL_HEIGHT / 2;
-        g_ball_movement.y *= -1;
-    }
-    // right side
-    if (g_ball_position.x >= PADDLE_RIGHT_INIT_POS.x - PADDLE_WIDTH / 2) {
-        // bounce on the right paddle
-        if (g_ball_position.y <= g_paddle_right_position.y + PADDLE_RIGHT_HEIGHT / 2 &&
-            g_ball_position.y >= g_paddle_right_position.y - PADDLE_RIGHT_HEIGHT / 2) {
-            // put the ball back on the paddle   
-            g_ball_position.x = PADDLE_RIGHT_INIT_POS.x - PADDLE_WIDTH / 2 - BALL_WIDTH / 2;
-            g_ball_movement.x *= -1;
-            LOG("BOUNCE RIGHT!!\n\n");
         }
-        // right player lose
+    }
+    else if (g_game_status == RUNNING) {
+        // delta time
+        float tick = SDL_GetTicks() / MILLISECONDS_IN_SECOND;
+        float delta_time = tick - g_previous_tick;
+        g_previous_tick = tick;
+
+        // game logic - accumulators
+        // left paddle
+        std::cout << "game mode = " << g_game_mode << "\n";
+        if (g_game_mode == ONE) {
+            //std::cout << "paddle movement y = " << g_paddle_left_movement.y << "\n";
+            //std::cout << "top bound is " << HEIGHT_BOUND - PADDLE_LEFT_HEIGHT / 2 << "\n";
+            //std::cout << "paddle position y = " << g_paddle_left_position.y << "\n";
+
+
+            if (g_paddle_left_position.y > HEIGHT_BOUND - PADDLE_LEFT_HEIGHT / 2) {
+                g_paddle_left_position.y = HEIGHT_BOUND - PADDLE_LEFT_HEIGHT / 2;
+                g_paddle_left_movement_one.y *= -1;
+            }
+            else if (g_paddle_left_position.y < -HEIGHT_BOUND + PADDLE_LEFT_HEIGHT / 2) {
+                g_paddle_left_position.y = -HEIGHT_BOUND + PADDLE_LEFT_HEIGHT / 2;
+                g_paddle_left_movement_one.y *= -1;
+            }
+            g_paddle_left_position += g_paddle_left_movement_one * g_paddle_speed * delta_time;
+            std::cout << "paddle position y after = " << g_paddle_left_position.y << "\n";
+
+            std::cout << "paddle movement y after = " << g_paddle_left_movement.y << "\n";
+
+        }
         else {
-            g_game_status = TERMINATED;
+            if (g_paddle_left_position.y >= HEIGHT_BOUND - PADDLE_LEFT_HEIGHT / 2) {
+                g_paddle_left_position.y = HEIGHT_BOUND - PADDLE_LEFT_HEIGHT / 2 - HANGING_OFFSET;
+            }
+            else if (g_paddle_left_position.y <= -HEIGHT_BOUND + PADDLE_LEFT_HEIGHT / 2) {
+                g_paddle_left_position.y = -HEIGHT_BOUND + PADDLE_LEFT_HEIGHT / 2 + HANGING_OFFSET;
+            }
+            else {
+                g_paddle_left_position += g_paddle_left_movement * g_paddle_speed * delta_time;
+            }
         }
-
-    }
-    // left side
-    if (g_ball_position.x <= PADDLE_LEFT_INIT_POS.x + PADDLE_WIDTH / 2) {
-        // bounce on the left paddle
-        if (g_ball_position.y <= g_paddle_left_position.y + PADDLE_LEFT_HEIGHT / 2 &&
-            g_ball_position.y >= g_paddle_left_position.y - PADDLE_LEFT_HEIGHT / 2) {
-            g_ball_position.x = PADDLE_LEFT_INIT_POS.x + PADDLE_WIDTH / 2 + BALL_WIDTH / 2;
-            g_ball_movement.x *= -1;
-            LOG("BOUNCE LEFT!!\n\n");
+        // right paddle
+        if (g_paddle_right_position.y > HEIGHT_BOUND - PADDLE_RIGHT_HEIGHT / 2) {
+            g_paddle_right_position.y = HEIGHT_BOUND - PADDLE_RIGHT_HEIGHT / 2;
         }
-        // left player lose
+        else if (g_paddle_right_position.y < -HEIGHT_BOUND + PADDLE_RIGHT_HEIGHT / 2) {
+            g_paddle_right_position.y = -HEIGHT_BOUND + PADDLE_RIGHT_HEIGHT / 2;
+        }
         else {
-            g_game_status = TERMINATED;
+            g_paddle_right_position += g_paddle_right_movement * g_paddle_speed * delta_time;
         }
+        //ball
+        g_ball_position += g_ball_movement * g_ball_speed * delta_time;
+        g_ball_rotation.z += ROT_INCREMENT * delta_time;
+
+        // collision detection
+        // up and bottom
+        if (g_ball_position.y >= HEIGHT_BOUND) {
+            // put it back to the max position to avoid hanging
+            g_ball_position.y = HEIGHT_BOUND - BALL_HEIGHT / 2;
+            g_ball_movement.y *= -1;
+        }
+        else if (g_ball_position.y <= -HEIGHT_BOUND) {
+            g_ball_position.y = -HEIGHT_BOUND + BALL_HEIGHT / 2;
+            g_ball_movement.y *= -1;
+        }
+        // right side
+        if (g_ball_position.x >= PADDLE_RIGHT_INIT_POS.x - PADDLE_WIDTH / 2) {
+            // bounce on the right paddle
+            if (g_ball_position.y <= g_paddle_right_position.y + PADDLE_RIGHT_HEIGHT / 2 &&
+                g_ball_position.y >= g_paddle_right_position.y - PADDLE_RIGHT_HEIGHT / 2) {
+                // put the ball back on the paddle   
+                g_ball_position.x = PADDLE_RIGHT_INIT_POS.x - PADDLE_WIDTH / 2 - BALL_WIDTH / 2;
+                g_ball_movement.x *= -1;
+                LOG("BOUNCE RIGHT!!\n\n");
+            }
+            // right player lose
+            else {
+                LOG("right lose!!\n\n");
+                g_game_status = GAMEOVER;
+                g_game_winner = PLAYER1;
+            }
+
+        }
+        // left side
+        if (g_ball_position.x <= PADDLE_LEFT_INIT_POS.x + PADDLE_WIDTH / 2) {
+            // bounce on the left paddle
+            if (g_ball_position.y <= g_paddle_left_position.y + PADDLE_LEFT_HEIGHT / 2 &&
+                g_ball_position.y >= g_paddle_left_position.y - PADDLE_LEFT_HEIGHT / 2) {
+                g_ball_position.x = PADDLE_LEFT_INIT_POS.x + PADDLE_WIDTH / 2 + BALL_WIDTH / 2;
+                g_ball_movement.x *= -1;
+                LOG("BOUNCE LEFT!!\n\n");
+            }
+            // left player lose
+            else {
+                g_game_status = GAMEOVER;
+                g_game_winner = PLAYER2;
+            }
+
+        }
+
+        // model matrix reset
+        g_paddle_left_matrix = glm::mat4(1.0f);
+        g_paddle_right_matrix = glm::mat4(1.0f);
+        g_ball_matrix = glm::mat4(1.0f);
+        g_player1_matrix = glm::mat4(1.0f);
+        g_player2_matrix = glm::mat4(1.0f);
+
+        // transformation
+        g_ball_matrix = glm::translate(g_ball_matrix, g_ball_position);
+        g_ball_matrix = glm::rotate(g_ball_matrix, g_ball_rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+        g_ball_matrix = glm::scale(g_ball_matrix, BALL_INIT_SCALE);
+        g_paddle_left_matrix = glm::translate(g_paddle_left_matrix, PADDLE_LEFT_INIT_POS);
+        g_paddle_left_matrix = glm::translate(g_paddle_left_matrix, g_paddle_left_position);
+        g_paddle_left_matrix = glm::scale(g_paddle_left_matrix, PADDLE_LEFT_INIT_SCALE);
+        g_paddle_right_matrix = glm::translate(g_paddle_right_matrix, PADDLE_RIGHT_INIT_POS);
+        g_paddle_right_matrix = glm::translate(g_paddle_right_matrix, g_paddle_right_position);
+        g_paddle_right_matrix = glm::scale(g_paddle_right_matrix, PADDLE_LEFT_INIT_SCALE);
+
+        g_player1_matrix = glm::translate(g_player1_matrix, PLAYER_ONE_INIT_POS);
+        g_player1_matrix = glm::scale(g_player1_matrix, PLAYER_ONE_INIT_SCALE);
+
+        g_player2_matrix = glm::translate(g_player2_matrix, PLAYER_TWO_INIT_POS);
+        g_player2_matrix = glm::scale(g_player2_matrix, PLAYER_TWO_INIT_SCALE);
 
     }
 
-    // model matrix reset
-    g_paddle_left_matrix = glm::mat4(1.0f);
-    g_paddle_right_matrix = glm::mat4(1.0f);
-    g_ball_matrix = glm::mat4(1.0f);
-
-    // transformation
-    g_ball_matrix = glm::translate(g_ball_matrix, g_ball_position);
-    g_ball_matrix = glm::rotate(g_ball_matrix, g_ball_rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
-    g_ball_matrix = glm::scale(g_ball_matrix, BALL_INIT_SCALE);
-    g_paddle_left_matrix = glm::translate(g_paddle_left_matrix, PADDLE_LEFT_INIT_POS);
-    g_paddle_left_matrix = glm::translate(g_paddle_left_matrix, g_paddle_left_position);
-    g_paddle_left_matrix = glm::scale(g_paddle_left_matrix, PADDLE_LEFT_INIT_SCALE);
-    g_paddle_right_matrix = glm::translate(g_paddle_right_matrix, PADDLE_RIGHT_INIT_POS);
-    g_paddle_right_matrix = glm::translate(g_paddle_right_matrix, g_paddle_right_position);
-    g_paddle_right_matrix = glm::scale(g_paddle_right_matrix, PADDLE_LEFT_INIT_SCALE);
 }
 
 void draw_object(glm::mat4& object_g_model_matrix, GLuint& object_texture_id) {
@@ -403,10 +464,20 @@ void render() {
     glEnableVertexAttribArray(g_shader_program.get_tex_coordinate_attribute());
 
     // bind texture
-    draw_object(g_paddle_left_matrix, g_paddle_left_texture_id);
-    draw_object(g_paddle_right_matrix, g_paddle_right_texture_id);
-    draw_object(g_ball_matrix, g_ball_texture_id);
+    if (g_game_status == RUNNING) {
+        draw_object(g_paddle_left_matrix, g_paddle_left_texture_id);
+        draw_object(g_paddle_right_matrix, g_paddle_right_texture_id);
+        draw_object(g_player1_matrix, g_player1_texture_id);
+        draw_object(g_player2_matrix, g_player2_texture_id);
+        draw_object(g_ball_matrix, g_ball_texture_id);
 
+    }
+    else if (g_game_status == GAMEOVER) {
+        if (g_game_winner == PLAYER1) draw_object(g_winner1_matrix, g_winner1_texture_id);
+        else draw_object(g_winner2_matrix, g_winner2_texture_id);
+    }
+
+    
     // disable two attribute arrays
     glDisableVertexAttribArray(g_shader_program.get_position_attribute());
     glDisableVertexAttribArray(g_shader_program.get_tex_coordinate_attribute());
@@ -421,7 +492,7 @@ int main(int argc, char* argv[])
 {
     initialize();
 
-    while (g_game_status == RUNNING)
+    while (g_game_status == RUNNING || g_game_status == GAMEOVER)
     {
         process_input();
         update();
