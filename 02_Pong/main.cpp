@@ -68,7 +68,7 @@ constexpr glm::vec3 PADDLE_RIGHT_INIT_SCALE = glm::vec3(PADDLE_WIDTH, PADDLE_RIG
 constexpr glm::vec3 PADDLE_LEFT_INIT_POS = glm::vec3(-WIDTH_BOUND, 0.0f, 0.0f);
 constexpr glm::vec3 PADDLE_RIGHT_INIT_POS = glm::vec3(WIDTH_BOUND, 0.0f, 0.0f);
 constexpr char BALLS_SPRITE_FILEPATH[3][20] = { "assets/bomb.png", "assets/bomb2.png", "assets/bomb3.png" };
-constexpr float BALLS_WIDTH[3] = { 0.5f, 0.7f, 0.3f };
+constexpr float BALLS_WIDTH[3] = { 0.5f, 0.7f, 0.5f };
 constexpr float BALLS_HEIGHT[3] = { 720.0f / 851 * BALLS_WIDTH[0], 302 / 400.f * BALLS_WIDTH[1], 210 / 190.f * BALLS_WIDTH[2] };
 constexpr glm::vec3 BALLS_INIT_SCALE[3] = { 
     glm::vec3(BALLS_WIDTH[0], BALLS_HEIGHT[0], 0.0f),
@@ -260,8 +260,11 @@ void process_input() {
                     break;
                 case SDLK_1:
                     g_ball_number = 1;
+                    g_balls_position[1] = glm::vec3(0.0f);
+                    g_balls_position[2] = glm::vec3(0.0f);
                     break;
                 case SDLK_2:
+                    g_balls_position[2] = glm::vec3(0.0f);
                     g_ball_number = 2;
                     break;
                 case SDLK_3:
