@@ -28,6 +28,7 @@
 
 /* enums */
 enum AppStatus {RUNNING, TERMINATED};
+enum GameMode {ONE, TWO};
 
 /* constants */
 // The size of our literal game window
@@ -49,6 +50,8 @@ VIEWPORT_WIDTH = WINDOW_WIDTH,
 VIEWPORT_HEIGHT = WINDOW_HEIGHT;
 
 constexpr float MILLISECONDS_IN_SECOND = 1000.0;
+
+constexpr float HANGING_OFFSET = 0.01f;
 
 // textures
 constexpr char V_SHADER_PATH[] = "shaders/vertex_textured.glsl",
@@ -74,6 +77,7 @@ constexpr GLint TEXTURE_BORDER = 0;
 // general
 SDL_Window* g_display_window = nullptr;
 AppStatus g_game_status = RUNNING;
+GameMode g_game_mode = TWO;
 ShaderProgram g_shader_program = ShaderProgram();
 
 float g_previous_tick = 0.0f;
@@ -97,6 +101,7 @@ glm::vec3 g_paddle_left_position = glm::vec3(0.0f);
 glm::vec3 g_paddle_right_position = glm::vec3(0.0f);
 glm::vec3 g_ball_position = glm::vec3(0.0f);
 glm::vec3 g_paddle_left_movement = glm::vec3(0.0f);
+glm::vec3 g_paddle_left_movement_one = glm::vec3(0.0f, 1.0f, 0.0f);
 glm::vec3 g_paddle_right_movement = glm::vec3(0.0f);
 glm::vec3 g_ball_movement = glm::vec3(2.0f, 1.7f, 0.0f);
 
@@ -183,15 +188,42 @@ void process_input() {
     g_paddle_left_movement = glm::vec3(0.0f);
     g_paddle_right_movement = glm::vec3(0.0f);
 
+    // bounce on the right paddle
     SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
+    while (SDL_PollEvent(&event))
+    {
+        switch (event.type)
+        {
+        // End game
+        case SDL_QUIT:
+        case SDL_WINDOWEVENT_CLOSE:
             g_game_status = TERMINATED;
+            break;
+
+        case SDL_KEYDOWN:
+            switch (event.key.keysym.sym)
+            {
+                case SDLK_t:
+                    // switch between one and two player mode
+                    if (g_game_mode == ONE) g_game_mode = TWO;
+                    else {
+                        g_game_mode = ONE;
+                        //g_paddle_left_movement.y = 1.0f;
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+
+        default:
+            break;
         }
     }
 
     const Uint8* key_state = SDL_GetKeyboardState(NULL);
 
+    // TODO: limit paddle movement.
     if (key_state[SDL_SCANCODE_DOWN])
     {
         g_paddle_right_movement.y = -1.0f;
@@ -202,16 +234,18 @@ void process_input() {
         g_paddle_right_movement.y = 1.0f;
         //g_animation_indices = g_george_walking[RIGHT];
     }
-
-    if (key_state[SDL_SCANCODE_W])
-    {
-        g_paddle_left_movement.y = 1.0f;
-        //g_animation_indices = g_george_walking[UP];
-    }
-    else if (key_state[SDL_SCANCODE_S])
-    {
-        g_paddle_left_movement.y = -1.0f;
-        //g_animation_indices = g_george_walking[DOWN];
+    
+    if (g_game_mode == TWO) {
+        if (key_state[SDL_SCANCODE_W])
+        {
+            g_paddle_left_movement.y = 1.0f;
+            //g_animation_indices = g_george_walking[UP];
+        }
+        else if (key_state[SDL_SCANCODE_S])
+        {
+            g_paddle_left_movement.y = -1.0f;
+            //g_animation_indices = g_george_walking[DOWN];
+        }
     }
 
     if (glm::length(g_paddle_left_movement) > 1.0f)
@@ -227,8 +261,56 @@ void update() {
     g_previous_tick = tick;
 
     // game logic - accumulators
-    g_paddle_left_position += g_paddle_left_movement * g_paddle_speed * delta_time;
-    g_paddle_right_position += g_paddle_right_movement * g_paddle_speed * delta_time;
+    // left paddle
+    std::cout << "game mode = " << g_game_mode << "\n";
+    if (g_game_mode == ONE) {
+        //if (g_paddle_left_movement.y >= 0) {
+        //    g_paddle_left_movement.y = 1.0f;
+        //}
+        //else {
+        //    g_paddle_left_movement.y = -1.0f;
+        //}
+        std::cout << "paddle movement y = " << g_paddle_left_movement.y << "\n";
+        std::cout << "top bound is " << HEIGHT_BOUND - PADDLE_HEIGHT / 2 << "\n";
+        std::cout << "paddle position y = " << g_paddle_left_position.y << "\n";
+
+
+        if (g_paddle_left_position.y > HEIGHT_BOUND - PADDLE_HEIGHT / 2) {
+            g_paddle_left_position.y = HEIGHT_BOUND - PADDLE_HEIGHT / 2;
+            g_paddle_left_movement_one.y *= -1;
+        }
+        else if (g_paddle_left_position.y < -HEIGHT_BOUND + PADDLE_HEIGHT / 2) {
+            g_paddle_left_position.y = -HEIGHT_BOUND + PADDLE_HEIGHT / 2;
+            g_paddle_left_movement_one.y *= -1;
+        }
+        g_paddle_left_position += g_paddle_left_movement_one * g_paddle_speed * delta_time;
+        std::cout << "paddle position y after = " << g_paddle_left_position.y << "\n";
+
+        std::cout << "paddle movement y after = " << g_paddle_left_movement.y << "\n";
+
+    }
+    else {
+        if (g_paddle_left_position.y >= HEIGHT_BOUND - PADDLE_HEIGHT / 2) {
+            g_paddle_left_position.y = HEIGHT_BOUND - PADDLE_HEIGHT / 2 - HANGING_OFFSET;
+        }
+        else if (g_paddle_left_position.y <= -HEIGHT_BOUND + PADDLE_HEIGHT / 2) {
+            g_paddle_left_position.y = -HEIGHT_BOUND + PADDLE_HEIGHT / 2 + HANGING_OFFSET;
+        }
+        else {
+            g_paddle_left_position += g_paddle_left_movement * g_paddle_speed * delta_time;
+        }
+    }
+    // right paddle
+    if (g_paddle_right_position.y > HEIGHT_BOUND - PADDLE_HEIGHT / 2) {
+        g_paddle_right_position.y = HEIGHT_BOUND - PADDLE_HEIGHT / 2;
+    }
+    else if (g_paddle_right_position.y < -HEIGHT_BOUND + PADDLE_HEIGHT / 2) {
+        g_paddle_right_position.y = -HEIGHT_BOUND + PADDLE_HEIGHT / 2;
+    }
+    else {
+        g_paddle_right_position += g_paddle_right_movement * g_paddle_speed * delta_time;
+    }
+    //ball
     g_ball_position += g_ball_movement * g_ball_speed * delta_time;
     //std::cout << glm::to_string(g_paddle_right_position) << std::endl;
 
@@ -243,23 +325,35 @@ void update() {
         g_ball_position.y = -HEIGHT_BOUND + BALL_SIZE / 2;
         g_ball_movement.y *= -1;
     }
-    // with the right paddle
-    if (g_ball_position.x >= PADDLE_RIGHT_INIT_POS.x - PADDLE_WIDTH / 2 &&
-        g_ball_position.y <= g_paddle_right_position.y + PADDLE_HEIGHT / 2 &&
-        g_ball_position.y >= g_paddle_right_position.y - PADDLE_HEIGHT / 2) {
-    //if (g_ball_position.x <= PADDLE_RIGHT_INIT_POS.x - PADDLE_WIDTH / 2) {
+    // right side
+    if (g_ball_position.x >= PADDLE_RIGHT_INIT_POS.x - PADDLE_WIDTH / 2) {
+        // bounce on the right paddle
+        if (g_ball_position.y <= g_paddle_right_position.y + PADDLE_HEIGHT / 2 &&
+            g_ball_position.y >= g_paddle_right_position.y - PADDLE_HEIGHT / 2) {
+            // put the ball back on the paddle   
+            g_ball_position.x = PADDLE_RIGHT_INIT_POS.x - PADDLE_WIDTH / 2 - BALL_SIZE / 2;
+            g_ball_movement.x *= -1;
+            LOG("BOUNCE RIGHT!!\n\n");
+        }
+        // right player lose
+        else {
+            g_game_status = TERMINATED;
+        }
 
-        // put the ball back on the paddle   
-        //g_ball_position.x = PADDLE_RIGHT_INIT_POS.x - PADDLE_WIDTH / 2 - BALL_SIZE / 2;
-        g_ball_movement.x *= -1;
-        LOG("BOUNCE RIGHT!!\n\n");
     }
-    if (g_ball_position.x <= PADDLE_LEFT_INIT_POS.x + PADDLE_WIDTH / 2 &&
-        g_ball_position.y <= g_paddle_left_position.y + PADDLE_HEIGHT / 2 &&
-        g_ball_position.y >= g_paddle_left_position.y - PADDLE_HEIGHT / 2) {
-        g_ball_position.x = PADDLE_LEFT_INIT_POS.x + PADDLE_WIDTH / 2 + BALL_SIZE / 2;
-        g_ball_movement.x *= -1;
-        LOG("BOUNCE LEFT!!\n\n");
+    
+    if (g_ball_position.x <= PADDLE_LEFT_INIT_POS.x + PADDLE_WIDTH / 2) {
+        // bounce on the left paddle
+        if (g_ball_position.y <= g_paddle_left_position.y + PADDLE_HEIGHT / 2 &&
+            g_ball_position.y >= g_paddle_left_position.y - PADDLE_HEIGHT / 2) {
+            g_ball_position.x = PADDLE_LEFT_INIT_POS.x + PADDLE_WIDTH / 2 + BALL_SIZE / 2;
+            g_ball_movement.x *= -1;
+            LOG("BOUNCE LEFT!!\n\n");
+        }
+        // left player lose
+        else {
+            g_game_status = TERMINATED;
+        }
 
     }
 
@@ -268,9 +362,9 @@ void update() {
     //std::cout << "x = " << g_ball_position.x << "\n";
     //std::cout << "paddle right BOUND " << PADDLE_RIGHT_INIT_POS.x - PADDLE_WIDTH / 2 << "\n";
     //std::cout << "paddle left BOUND " << PADDLE_LEFT_INIT_POS.x + PADDLE_WIDTH / 2 << "\n";
-    std::cout << "y = " << g_ball_position.y << "\n";
-    std::cout << "paddle right top bound =  " << g_paddle_right_position.y + PADDLE_HEIGHT / 2 << "\n";
-    std::cout << "paddle right bottom bound =  " << g_paddle_right_position.y - PADDLE_HEIGHT / 2 << "\n";
+    //std::cout << "y = " << g_ball_position.y << "\n";
+    //std::cout << "paddle right top bound =  " << g_paddle_right_position.y + PADDLE_HEIGHT / 2 << "\n";
+    //std::cout << "paddle right bottom bound =  " << g_paddle_right_position.y - PADDLE_HEIGHT / 2 << "\n";
 
 
 
