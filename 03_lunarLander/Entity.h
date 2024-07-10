@@ -5,6 +5,7 @@
 #include "ShaderProgram.h"
 
 enum AnimationDirection { LEFT, RIGHT, UP, DOWN };
+constexpr float ACCELERATION = 0.15f;
 
 class Entity
 {
@@ -81,10 +82,10 @@ public:
     //void move_right() { m_acceleration.x = 1.0f;  face_right(); }
     //void move_up() { m_acceleration.y = 1.0f;  face_up(); }
     //void move_down() { m_acceleration.y = -1.0f; face_down(); }
-    void move_left() { m_acceleration.x = -1.0f; }
-    void move_right() { m_acceleration.x = 1.0f; }
-    void move_up() { m_acceleration.y = 1.0f; }
-    void move_down() { m_acceleration.y = -1.0f; }
+    void move_left() { m_acceleration.x = -ACCELERATION; }
+    void move_right() { m_acceleration.x = ACCELERATION; }
+    void move_up() { m_acceleration.y = ACCELERATION; }
+    void move_down() { m_acceleration.y = -ACCELERATION; }
 
 
     void const jump() { m_is_jumping = true; }

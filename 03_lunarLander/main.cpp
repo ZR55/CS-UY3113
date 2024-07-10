@@ -163,7 +163,7 @@ void initialise()
     g_game_state.player = new Entity(
         player_texture_id,         // texture id
         1.0f,                      // speed
-        glm::vec3(0.0f),   // acceleration
+        glm::vec3(0.0f, -0.1f, 0.0f),   // acceleration
         0.5f,                      // width
         0.5f                       // height
     );
@@ -246,6 +246,9 @@ void process_input()
     if (key_state[SDL_SCANCODE_LEFT])       g_game_state.player->move_left();
     else if (key_state[SDL_SCANCODE_RIGHT]) g_game_state.player->move_right();
 
+    if (key_state[SDL_SCANCODE_UP])       g_game_state.player->move_up();
+    else if (key_state[SDL_SCANCODE_DOWN]) g_game_state.player->move_down();
+
     if (glm::length(g_game_state.player->get_movement()) > 1.0f)
         g_game_state.player->normalise_movement();
 }
@@ -267,7 +270,7 @@ void update()
     while (delta_time >= FIXED_TIMESTEP)
     {
         g_game_state.player->update(FIXED_TIMESTEP, g_game_state.forests, FOREST_COUNT);
-        //g_game_state.player->update(FIXED_TIMESTEP, g_game_state.ground, GROUND_COUNT);
+        g_game_state.player->update(FIXED_TIMESTEP, g_game_state.ground, GROUND_COUNT);
         g_game_state.forests[0].update(0.0f, NULL, 0);
         g_game_state.forests[1].update(0.0f, NULL, 0);
         g_game_state.ground->update(0.0f, NULL, 0);
