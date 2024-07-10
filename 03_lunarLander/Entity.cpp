@@ -213,6 +213,16 @@ void Entity::update(float delta_time, Entity* collidable_entities, int collidabl
 
     m_model_matrix = glm::mat4(1.0f);
     m_model_matrix = glm::translate(m_model_matrix, m_position);
+    if (m_rotation_x != 0.0f) {
+        m_model_matrix = glm::rotate(m_model_matrix, m_rotation_x, glm::vec3(1.0f, 0.0f, 0.0f));
+    }
+    if (m_rotation_y != 0.0f) {
+        m_model_matrix = glm::rotate(m_model_matrix, m_rotation_y, glm::vec3(0.0f, 1.0f, 0.0f));
+    }
+    if (m_rotation_z != 0.0f) {
+        m_model_matrix = glm::rotate(m_model_matrix, m_rotation_z, glm::vec3(0.0f, 0.0f, 1.0f));
+
+    }
     m_model_matrix = glm::scale(m_model_matrix, m_scale);
 }
 

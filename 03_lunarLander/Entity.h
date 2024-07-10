@@ -14,6 +14,7 @@ private:
     // ————— TRANSFORMATIONS ————— //
     glm::vec3 m_movement;
     glm::vec3 m_position;
+    glm::vec3 m_rotation;
     glm::vec3 m_scale;
     glm::vec3 m_velocity;
     glm::vec3 m_acceleration;
@@ -39,6 +40,10 @@ private:
 
     float m_width = 1.0f,
         m_height = 1.0f;
+
+    float m_rotation_x = 0.0f,
+        m_rotation_y = 0.0f,
+        m_rotation_z = 0.0f;
     // ————— COLLISIONS ————— //
     bool m_collided_top = false;
     bool m_collided_bottom = false;
@@ -102,6 +107,13 @@ public:
         m_scale = new_scale;
         m_width = new_scale.x;
         m_height = new_scale.y;
+    }
+
+    void const set_rotation(glm::vec3 new_rotation) {
+        m_rotation = new_rotation;
+        m_rotation_x = new_rotation.x;
+        m_rotation_y = new_rotation.y;
+        m_rotation_z = new_rotation.z;
     }
 
     void const set_texture_id(GLuint new_texture_id) { m_texture_id = new_texture_id; }

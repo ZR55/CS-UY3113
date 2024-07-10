@@ -13,7 +13,8 @@
 #define LOG(argument) std::cout << argument << '\n'
 #define GL_GLEXT_PROTOTYPES 1
 #define FIXED_TIMESTEP 0.0166666f
-#define TEACUP_COUNT 1
+#define GROUND_COUNT 1
+#define FOREST_COUNT 2
 
 #ifdef _WINDOWS
 #include <GL/glew.h>
@@ -35,13 +36,14 @@ enum AppStatus { RUNNING, TERMINATED };
 
 struct GameState
 {
-    Entity* flower;
-    Entity* teacups;
+    Entity* player;
+    Entity* ground;
+    Entity* forests;
 };
 
 // ––––– CONSTANTS ––––– //
-constexpr int WINDOW_WIDTH = 640 * 2,
-WINDOW_HEIGHT = 480 * 2;
+constexpr int WINDOW_WIDTH = 640,
+WINDOW_HEIGHT = 480;
 
 constexpr float BG_RED = 0.9765625f,
 BG_GREEN = 0.97265625f,
@@ -64,6 +66,11 @@ constexpr char FOREST_FILEPATH[] = "assets/forest.png";
 constexpr int NUMBER_OF_TEXTURES = 1;
 constexpr GLint LEVEL_OF_DETAIL = 0;
 constexpr GLint TEXTURE_BORDER = 0;
+
+constexpr float FOREST_HEIGHT = 2.0f;
+constexpr float FOREST_WIDTH = 1280 / 374.0f * FOREST_HEIGHT;
+constexpr float GROUND_HEIGHT = 0.48f;
+constexpr float GROUND_WIDTH = 360 / 78.0f * GROUND_HEIGHT;
 
 // ––––– GLOBAL VARIABLES ––––– //
 GameState g_game_state;
@@ -118,7 +125,7 @@ GLuint load_texture(const char* filepath)
 void initialise()
 {
     SDL_Init(SDL_INIT_VIDEO);
-    g_display_window = SDL_CreateWindow("Hello, Entities!",
+    g_display_window = SDL_CreateWindow("Luanr Lander Variant",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         WINDOW_WIDTH, WINDOW_HEIGHT,
         SDL_WINDOW_OPENGL);
@@ -150,34 +157,51 @@ void initialise()
 
     glClearColor(BG_RED, BG_BLUE, BG_GREEN, BG_OPACITY);
 
-    // ––––– TEACUP ––––– //
-    g_game_state.teacups = new Entity[TEACUP_COUNT];
-    GLuint teacup_texture_id = load_texture(TEACUP_FILEPATH);
+    // ----- PLAYER ----- //
+    GLuint player_texture_id = load_texture(PLAYER_FILEPATH);
 
-    for (int i = 0; i < TEACUP_COUNT; i++)
-        g_game_state.teacups[i] = Entity(
-            teacup_texture_id, // texture id
-            0.0f,              // speed
-            1.0f,              // width
-            1.0f               // height
-        );
-
-    g_game_state.teacups[0].set_position(glm::vec3(0.0f, -2.5f, 0.0f));
-    g_game_state.teacups[0].update(0.0f, NULL, 0);
-
-    g_game_state.teacups[0].set_scale(glm::vec3(3.0f, 3.0f, 0.0f));
-
-    // ––––– FLOWER ––––– //
-    GLuint flower_texture_id = load_texture(FLOWER_FILEPATH);
-
-    g_game_state.flower = new Entity(
-        flower_texture_id,         // texture id
+    g_game_state.player = new Entity(
+        player_texture_id,         // texture id
         1.0f,                      // speed
         0.5f,                      // width
         0.5f                       // height
     );
 
-    g_game_state.flower->set_position(glm::vec3(0.0f, 2.5f, 0.0f));
+    g_game_state.player->set_position(glm::vec3(0.0f, 2.5f, 0.0f));
+
+    // ––––– FOREST ––––– //
+    g_game_state.forests = new Entity[FOREST_COUNT];
+    GLuint forest_texture_id = load_texture(FOREST_FILEPATH);
+
+    for (int i = 0; i < FOREST_COUNT; i++) {
+        g_game_state.forests[i] = Entity(
+            forest_texture_id, // texture id
+            0.0f,              // speed
+            1.0f,              // width
+            1.0f               // height
+        );
+
+        g_game_state.forests[i].set_position(glm::vec3(-4.0f + 9.0f * i, -3.1f, 0.0f));
+        g_game_state.forests[i].update(0.0f, NULL, 0);
+
+        g_game_state.forests[i].set_scale(glm::vec3(FOREST_WIDTH, FOREST_HEIGHT, 0.0f));
+
+    }
+    g_game_state.forests[1].set_rotation(glm::vec3(0.0f, glm::radians(180.0f), 0.0f));
+    
+
+    // ––––– GROUND ––––– //
+    GLuint ground_texture_id = load_texture(GROUND_FILEPATH);
+
+    g_game_state.ground = new Entity(
+        ground_texture_id,         // texture id
+        0.0f,                      // speed
+        1.0f,                      // width
+        1.0f                       // height
+    );
+
+    g_game_state.ground->set_position(glm::vec3(0.5f, -3.5f, 0.0f));
+    g_game_state.ground->set_scale(glm::vec3(GROUND_WIDTH, GROUND_HEIGHT, 0.0f));
 
     // ––––– GENERAL ––––– //
     glEnable(GL_BLEND);
@@ -186,7 +210,7 @@ void initialise()
 
 void process_input()
 {
-    g_game_state.flower->set_movement(glm::vec3(0.0f));
+    g_game_state.player->set_movement(glm::vec3(0.0f));
 
     SDL_Event event;
     while (SDL_PollEvent(&event))
@@ -205,10 +229,6 @@ void process_input()
                 g_app_status = TERMINATED;
                 break;
 
-            case SDLK_SPACE:
-                /** PART I: Let go of the flower */
-                break;
-
             default:
                 break;
             }
@@ -220,11 +240,11 @@ void process_input()
 
     const Uint8* key_state = SDL_GetKeyboardState(NULL);
 
-    if (key_state[SDL_SCANCODE_LEFT])       g_game_state.flower->move_left();
-    else if (key_state[SDL_SCANCODE_RIGHT]) g_game_state.flower->move_right();
+    if (key_state[SDL_SCANCODE_LEFT])       g_game_state.player->move_left();
+    else if (key_state[SDL_SCANCODE_RIGHT]) g_game_state.player->move_right();
 
-    if (glm::length(g_game_state.flower->get_movement()) > 1.0f)
-        g_game_state.flower->normalise_movement();
+    if (glm::length(g_game_state.player->get_movement()) > 1.0f)
+        g_game_state.player->normalise_movement();
 }
 
 void update()
@@ -243,8 +263,12 @@ void update()
 
     while (delta_time >= FIXED_TIMESTEP)
     {
-        g_game_state.flower->update(FIXED_TIMESTEP, g_game_state.teacups, TEACUP_COUNT);
-        g_game_state.teacups[0].update(0.0f, NULL, 0);
+        g_game_state.player->update(FIXED_TIMESTEP, g_game_state.forests, FOREST_COUNT);
+        g_game_state.player->update(FIXED_TIMESTEP, g_game_state.ground, GROUND_COUNT);
+        g_game_state.forests[0].update(0.0f, NULL, 0);
+        g_game_state.forests[1].update(0.0f, NULL, 0);
+        g_game_state.ground->update(0.0f, NULL, 0);
+
         delta_time -= FIXED_TIMESTEP;
     }
 
@@ -255,10 +279,12 @@ void render()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    g_game_state.flower->render(&g_shader_program);
+    g_game_state.player->render(&g_shader_program);
 
-    for (int i = 0; i < TEACUP_COUNT; i++)
-        g_game_state.teacups[i].render(&g_shader_program);
+    for (int i = 0; i < FOREST_COUNT; i++)
+        g_game_state.forests[i].render(&g_shader_program);
+
+    g_game_state.ground->render(&g_shader_program);
 
     SDL_GL_SwapWindow(g_display_window);
 }
@@ -267,8 +293,9 @@ void shutdown()
 {
     SDL_Quit();
 
-    delete[] g_game_state.teacups;
-    delete g_game_state.flower;
+    delete[] g_game_state.forests;
+    delete g_game_state.player;
+    delete g_game_state.ground;
 }
 
 // ––––– GAME LOOP ––––– //
