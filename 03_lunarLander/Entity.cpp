@@ -41,11 +41,11 @@ Entity::Entity(GLuint texture_id, float speed, glm::vec3 acceleration, float jum
 }
 
 // Simpler constructor for partial initialization
-Entity::Entity(GLuint texture_id, float speed, float width, float height)
+Entity::Entity(GLuint texture_id, float speed, glm::vec3 acceleration, float width, float height)
     : m_position(0.0f), m_movement(0.0f), m_scale(1.0f, 1.0f, 0.0f), m_model_matrix(1.0f),
     m_speed(speed), m_animation_cols(0), m_animation_frames(0), m_animation_index(0),
     m_animation_rows(0), m_animation_indices(nullptr), m_animation_time(0.0f),
-    m_texture_id(texture_id), m_velocity(0.0f), m_acceleration(0.0f), m_width(width), m_height(height)
+    m_texture_id(texture_id), m_velocity(0.0f), m_acceleration(acceleration), m_width(width), m_height(height)
 {
     // Initialize m_walking with zeros or any default value
     for (int i = 0; i < SECONDS_PER_FRAME; ++i)

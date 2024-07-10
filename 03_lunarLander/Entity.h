@@ -59,7 +59,7 @@ public:
     Entity(GLuint texture_id, float speed, glm::vec3 acceleration, float jump_power, int walking[4][4], float animation_time,
         int animation_frames, int animation_index, int animation_cols,
         int animation_rows, float width, float height);
-    Entity(GLuint texture_id, float speed, float width, float height); // Simpler constructor
+    Entity(GLuint texture_id, float speed, glm::vec3 acceleration, float width, float height); // Simpler constructor
     ~Entity();
 
     void draw_sprite_from_texture_atlas(ShaderProgram* program, GLuint texture_id, int index);
@@ -77,10 +77,15 @@ public:
     void face_up() { m_animation_indices = m_walking[UP]; }
     void face_down() { m_animation_indices = m_walking[DOWN]; }
 
-    void move_left() { m_movement.x = -1.0f; face_left(); }
-    void move_right() { m_movement.x = 1.0f;  face_right(); }
-    void move_up() { m_movement.y = 1.0f;  face_up(); }
-    void move_down() { m_movement.y = -1.0f; face_down(); }
+    //void move_left() { m_acceleration.x = -1.0f; face_left(); }
+    //void move_right() { m_acceleration.x = 1.0f;  face_right(); }
+    //void move_up() { m_acceleration.y = 1.0f;  face_up(); }
+    //void move_down() { m_acceleration.y = -1.0f; face_down(); }
+    void move_left() { m_acceleration.x = -1.0f; }
+    void move_right() { m_acceleration.x = 1.0f; }
+    void move_up() { m_acceleration.y = 1.0f; }
+    void move_down() { m_acceleration.y = -1.0f; }
+
 
     void const jump() { m_is_jumping = true; }
 

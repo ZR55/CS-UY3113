@@ -163,6 +163,7 @@ void initialise()
     g_game_state.player = new Entity(
         player_texture_id,         // texture id
         1.0f,                      // speed
+        glm::vec3(0.0f),   // acceleration
         0.5f,                      // width
         0.5f                       // height
     );
@@ -177,6 +178,7 @@ void initialise()
         g_game_state.forests[i] = Entity(
             forest_texture_id, // texture id
             0.0f,              // speed
+            glm::vec3(0.0f),   // acceleration
             1.0f,              // width
             1.0f               // height
         );
@@ -196,6 +198,7 @@ void initialise()
     g_game_state.ground = new Entity(
         ground_texture_id,         // texture id
         0.0f,                      // speed
+        glm::vec3(0.0f),   // acceleration
         1.0f,                      // width
         1.0f                       // height
     );
@@ -264,7 +267,7 @@ void update()
     while (delta_time >= FIXED_TIMESTEP)
     {
         g_game_state.player->update(FIXED_TIMESTEP, g_game_state.forests, FOREST_COUNT);
-        g_game_state.player->update(FIXED_TIMESTEP, g_game_state.ground, GROUND_COUNT);
+        //g_game_state.player->update(FIXED_TIMESTEP, g_game_state.ground, GROUND_COUNT);
         g_game_state.forests[0].update(0.0f, NULL, 0);
         g_game_state.forests[1].update(0.0f, NULL, 0);
         g_game_state.ground->update(0.0f, NULL, 0);
