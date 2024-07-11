@@ -33,6 +33,7 @@
 
 // ––––– STRUCTS AND ENUMS ––––– //
 enum AppStatus { RUNNING, TERMINATED };
+enum GameResult { WIN, LOSE, NONE };
 
 struct GameState
 {
@@ -68,15 +69,17 @@ constexpr GLint LEVEL_OF_DETAIL = 0;
 constexpr GLint TEXTURE_BORDER = 0;
 
 constexpr float FOREST_HEIGHT = 2.0f;
-constexpr float FOREST_WIDTH = 1280 / 374.0f * FOREST_HEIGHT;
+constexpr float FOREST_WIDTH = 1280 / 374.0f * FOREST_HEIGHT; //6.84
 constexpr float GROUND_HEIGHT = 0.48f;
-constexpr float GROUND_WIDTH = 360 / 78.0f * GROUND_HEIGHT;
+constexpr float GROUND_WIDTH = 360 / 78.0f * GROUND_HEIGHT; //2.22
 
 // ––––– GLOBAL VARIABLES ––––– //
 GameState g_game_state;
 
 SDL_Window* g_display_window;
 AppStatus g_app_status = RUNNING;
+
+GameResult g_game_result = NONE;
 
 ShaderProgram g_shader_program;
 glm::mat4 g_view_matrix, g_projection_matrix;
@@ -168,7 +171,7 @@ void initialise()
         0.5f                       // height
     );
 
-    g_game_state.player->set_position(glm::vec3(0.0f, 2.5f, 0.0f));
+    g_game_state.player->set_position(glm::vec3(-4.0f, 2.5f, 0.0f));
 
     // ––––– FOREST ––––– //
     g_game_state.forests = new Entity[FOREST_COUNT];
@@ -256,30 +259,58 @@ void process_input()
 
 void update()
 {
-    float ticks = (float)SDL_GetTicks() / MILLISECONDS_IN_SECOND;
-    float delta_time = ticks - g_previous_ticks;
-    g_previous_ticks = ticks;
+    if (g_game_result == LOSE) {
 
-    delta_time += g_accumulator;
+    }
+    else if (g_game_result == WIN) {
 
-    if (delta_time < FIXED_TIMESTEP)
-    {
+    }
+    else {
+        float ticks = (float)SDL_GetTicks() / MILLISECONDS_IN_SECOND;
+        float delta_time = ticks - g_previous_ticks;
+        g_previous_ticks = ticks;
+
+        delta_time += g_accumulator;
+
+        if (delta_time < FIXED_TIMESTEP)
+        {
+            g_accumulator = delta_time;
+            return;
+        }
+
+        while (delta_time >= FIXED_TIMESTEP)
+        {
+            g_game_state.player->update(FIXED_TIMESTEP, g_game_state.forests, FOREST_COUNT);
+            if (g_game_state.player->get_collided_top() ||
+                g_game_state.player->get_collided_left() ||
+                g_game_state.player->get_collided_right()) {
+                LOG("collided with trees!!\n\n");
+                g_game_result = LOSE;
+            }
+
+            g_game_state.player->update(FIXED_TIMESTEP, g_game_state.ground, GROUND_COUNT);
+            if (g_game_state.player->get_collided_top()) {
+                LOG("GROND!\n\n");
+                g_game_result = WIN;
+            }
+
+            g_game_state.forests[0].update(0.0f, NULL, 0);
+            g_game_state.forests[1].update(0.0f, NULL, 0);
+            g_game_state.ground->update(0.0f, NULL, 0);
+
+            delta_time -= FIXED_TIMESTEP;
+        }
+        // when player is outside of the screen
+        if (g_game_state.player->get_position().x < -4.5f ||
+            g_game_state.player->get_position().x > 4.5f ||
+            g_game_state.player->get_position().y < -4.5f ||
+            g_game_state.player->get_position().y > 4.5f) {
+
+            g_game_result = LOSE;
+        }
+
         g_accumulator = delta_time;
-        return;
     }
-
-    while (delta_time >= FIXED_TIMESTEP)
-    {
-        g_game_state.player->update(FIXED_TIMESTEP, g_game_state.forests, FOREST_COUNT);
-        g_game_state.player->update(FIXED_TIMESTEP, g_game_state.ground, GROUND_COUNT);
-        g_game_state.forests[0].update(0.0f, NULL, 0);
-        g_game_state.forests[1].update(0.0f, NULL, 0);
-        g_game_state.ground->update(0.0f, NULL, 0);
-
-        delta_time -= FIXED_TIMESTEP;
-    }
-
-    g_accumulator = delta_time;
 }
 
 void render()

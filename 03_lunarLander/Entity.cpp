@@ -114,14 +114,17 @@ void const Entity::check_collision_y(Entity* collidable_entities, int collidable
             {
                 m_position.y -= y_overlap;
                 m_velocity.y = 0;
+                m_acceleration.y = 0;
 
                 // Collision!
                 m_collided_top = true;
+
             }
             else if (m_velocity.y < 0)
             {
                 m_position.y += y_overlap;
                 m_velocity.y = 0;
+                m_acceleration.y = 0;
 
                 // Collision!
                 m_collided_bottom = true;
@@ -144,6 +147,7 @@ void const Entity::check_collision_x(Entity* collidable_entities, int collidable
             {
                 m_position.x -= x_overlap;
                 m_velocity.x = 0;
+                m_acceleration.x = 0;
 
                 // Collision!
                 m_collided_right = true;
@@ -153,6 +157,7 @@ void const Entity::check_collision_x(Entity* collidable_entities, int collidable
             {
                 m_position.x += x_overlap;
                 m_velocity.x = 0;
+                m_acceleration.x = 0;
 
                 // Collision!
                 m_collided_left = true;
