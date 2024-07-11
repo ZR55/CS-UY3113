@@ -163,7 +163,7 @@ void initialise()
     g_game_state.player = new Entity(
         player_texture_id,         // texture id
         1.0f,                      // speed
-        glm::vec3(0.0f, -0.1f, 0.0f),   // acceleration
+        glm::vec3(0.0f, -0.05f, 0.0f),   // acceleration
         0.5f,                      // width
         0.5f                       // height
     );
@@ -213,7 +213,8 @@ void initialise()
 
 void process_input()
 {
-    g_game_state.player->set_movement(glm::vec3(0.0f));
+    //g_game_state.player->set_movement(glm::vec3(0.0f));
+    g_game_state.player->set_acceleration(glm::vec3(0.0f, -0.02f, 0.0f));
 
     SDL_Event event;
     while (SDL_PollEvent(&event))

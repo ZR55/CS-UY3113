@@ -5,7 +5,7 @@
 #include "ShaderProgram.h"
 
 enum AnimationDirection { LEFT, RIGHT, UP, DOWN };
-constexpr float ACCELERATION = 0.15f;
+constexpr float ACCELERATION = 0.015f;
 
 class Entity
 {
