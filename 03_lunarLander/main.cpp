@@ -63,6 +63,7 @@ constexpr float MILLISECONDS_IN_SECOND = 1000.0;
 constexpr char PLAYER_FILEPATH[] = "assets/parachute.png";
 constexpr char GROUND_FILEPATH[] = "assets/ground.png";
 constexpr char FOREST_FILEPATH[] = "assets/forest.png";
+constexpr char FONTSHEET_FILEPATH[] = "assets/font1.png";
 
 constexpr int NUMBER_OF_TEXTURES = 1;
 constexpr GLint LEVEL_OF_DETAIL = 0;
@@ -72,6 +73,8 @@ constexpr float FOREST_HEIGHT = 2.0f;
 constexpr float FOREST_WIDTH = 1280 / 374.0f * FOREST_HEIGHT; //6.84
 constexpr float GROUND_HEIGHT = 0.48f;
 constexpr float GROUND_WIDTH = 360 / 78.0f * GROUND_HEIGHT; //2.22
+
+constexpr int FONTBANK_SIZE = 16;
 
 // ––––– GLOBAL VARIABLES ––––– //
 GameState g_game_state;
@@ -83,6 +86,8 @@ GameResult g_game_result = NONE;
 
 ShaderProgram g_shader_program;
 glm::mat4 g_view_matrix, g_projection_matrix;
+
+GLuint g_font_texture_id;
 
 float g_previous_ticks = 0.0f;
 float g_accumulator = 0.0f;
@@ -123,6 +128,71 @@ GLuint load_texture(const char* filepath)
     stbi_image_free(image);
 
     return textureID;
+}
+
+void draw_text(ShaderProgram* program, GLuint font_texture_id, std::string text,
+    float font_size, float spacing, glm::vec3 position)
+{
+    // Scale the size of the fontbank in the UV-plane
+    // We will use this for spacing and positioning
+    float width = 1.0f / FONTBANK_SIZE;
+    float height = 1.0f / FONTBANK_SIZE;
+
+    // Instead of having a single pair of arrays, we'll have a series of pairs—one for
+    // each character. Don't forget to include <vector>!
+    std::vector<float> vertices;
+    std::vector<float> texture_coordinates;
+
+    // For every character...
+    for (int i = 0; i < text.size(); i++) {
+        // 1. Get their index in the spritesheet, as well as their offset (i.e. their
+        //    position relative to the whole sentence)
+        int spritesheet_index = (int)text[i];  // ascii value of character
+        float offset = (font_size + spacing) * i;
+
+        // 2. Using the spritesheet index, we can calculate our U- and V-coordinates
+        float u_coordinate = (float)(spritesheet_index % FONTBANK_SIZE) / FONTBANK_SIZE;
+        float v_coordinate = (float)(spritesheet_index / FONTBANK_SIZE) / FONTBANK_SIZE;
+
+        // 3. Inset the current pair in both vectors
+        vertices.insert(vertices.end(), {
+            offset + (-0.5f * font_size), 0.5f * font_size,
+            offset + (-0.5f * font_size), -0.5f * font_size,
+            offset + (0.5f * font_size), 0.5f * font_size,
+            offset + (0.5f * font_size), -0.5f * font_size,
+            offset + (0.5f * font_size), 0.5f * font_size,
+            offset + (-0.5f * font_size), -0.5f * font_size,
+            });
+
+        texture_coordinates.insert(texture_coordinates.end(), {
+            u_coordinate, v_coordinate,
+            u_coordinate, v_coordinate + height,
+            u_coordinate + width, v_coordinate,
+            u_coordinate + width, v_coordinate + height,
+            u_coordinate + width, v_coordinate,
+            u_coordinate, v_coordinate + height,
+            });
+    }
+
+    // 4. And render all of them using the pairs
+    glm::mat4 model_matrix = glm::mat4(1.0f);
+    model_matrix = glm::translate(model_matrix, position);
+
+    program->set_model_matrix(model_matrix);
+    glUseProgram(program->get_program_id());
+
+    glVertexAttribPointer(program->get_position_attribute(), 2, GL_FLOAT, false, 0,
+        vertices.data());
+    glEnableVertexAttribArray(program->get_position_attribute());
+    glVertexAttribPointer(program->get_tex_coordinate_attribute(), 2, GL_FLOAT, false, 0,
+        texture_coordinates.data());
+    glEnableVertexAttribArray(program->get_tex_coordinate_attribute());
+
+    glBindTexture(GL_TEXTURE_2D, font_texture_id);
+    glDrawArrays(GL_TRIANGLES, 0, (int)(text.size() * 6));
+
+    glDisableVertexAttribArray(program->get_position_attribute());
+    glDisableVertexAttribArray(program->get_tex_coordinate_attribute());
 }
 
 void initialise()
@@ -213,6 +283,9 @@ void initialise()
     g_game_state.ground->set_scale(glm::vec3(GROUND_WIDTH, GROUND_HEIGHT, 0.0f));
     //g_game_state.ground->set_scale(glm::vec3(GROUND_WIDTH, GROUND_HEIGHT, 0.0f));
 
+    // ----- FONT -----//
+    g_font_texture_id = load_texture(FONTSHEET_FILEPATH);
+
     // ––––– GENERAL ––––– //
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -263,13 +336,7 @@ void process_input()
 
 void update()
 {
-    if (g_game_result == LOSE) {
-
-    }
-    else if (g_game_result == WIN) {
-
-    }
-    else {
+    if (g_game_result == NONE) {
         float ticks = (float)SDL_GetTicks() / MILLISECONDS_IN_SECOND;
         float delta_time = ticks - g_previous_ticks;
         g_previous_ticks = ticks;
@@ -325,6 +392,16 @@ void update()
 void render()
 {
     glClear(GL_COLOR_BUFFER_BIT);
+
+    if (g_game_result == WIN) {
+        draw_text(&g_shader_program, g_font_texture_id, "Mission Completed!", 0.5f, -0.05f,
+            glm::vec3(-3.5f, 2.0f, 0.0f));
+    }
+    else if (g_game_result == LOSE) {
+        draw_text(&g_shader_program, g_font_texture_id, "Mission Failed!", 0.5f, -0.05f,
+            glm::vec3(-3.0f, 2.0f, 0.0f));
+
+    }
 
     g_game_state.player->render(&g_shader_program);
 
