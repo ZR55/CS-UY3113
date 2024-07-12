@@ -171,7 +171,9 @@ void initialise()
         0.5f                       // height
     );
 
-    g_game_state.player->set_position(glm::vec3(-4.0f, 2.5f, 0.0f));
+    //g_game_state.player->set_position(glm::vec3(-4.0f, 2.5f, 0.0f));
+    g_game_state.player->set_position(glm::vec3(0.0f, 1.5f, 0.0f));
+    g_game_state.player->set_scale(glm::vec3(1.f, 1.f, 0.0f));
 
     // ––––– FOREST ––––– //
     g_game_state.forests = new Entity[FOREST_COUNT];
@@ -182,14 +184,15 @@ void initialise()
             forest_texture_id, // texture id
             0.0f,              // speed
             glm::vec3(0.0f),   // acceleration
-            1.0f,              // width
-            1.0f               // height
+            FOREST_WIDTH,              // width
+            FOREST_HEIGHT               // height
         );
 
         g_game_state.forests[i].set_position(glm::vec3(-4.0f + 9.0f * i, -3.1f, 0.0f));
-        g_game_state.forests[i].update(0.0f, NULL, 0);
-
         g_game_state.forests[i].set_scale(glm::vec3(FOREST_WIDTH, FOREST_HEIGHT, 0.0f));
+        //g_game_state.forests[i].update(0.0f, NULL, 0);
+
+        //g_game_state.forests[i].set_scale(glm::vec3(FOREST_WIDTH, FOREST_HEIGHT, 0.0f));
 
     }
     g_game_state.forests[1].set_rotation(glm::vec3(0.0f, glm::radians(180.0f), 0.0f));
@@ -202,12 +205,13 @@ void initialise()
         ground_texture_id,         // texture id
         0.0f,                      // speed
         glm::vec3(0.0f),   // acceleration
-        1.0f,                      // width
-        1.0f                       // height
+        GROUND_WIDTH,                      // width
+        GROUND_HEIGHT                       // height
     );
 
     g_game_state.ground->set_position(glm::vec3(0.5f, -3.5f, 0.0f));
     g_game_state.ground->set_scale(glm::vec3(GROUND_WIDTH, GROUND_HEIGHT, 0.0f));
+    //g_game_state.ground->set_scale(glm::vec3(GROUND_WIDTH, GROUND_HEIGHT, 0.0f));
 
     // ––––– GENERAL ––––– //
     glEnable(GL_BLEND);
@@ -281,7 +285,10 @@ void update()
         while (delta_time >= FIXED_TIMESTEP)
         {
             g_game_state.player->update(FIXED_TIMESTEP, g_game_state.forests, FOREST_COUNT);
-            if (g_game_state.player->get_collided_top() ||
+            //std::cout << "the height of tree: " << g_game_state.forests[0].get_height() << "\n";
+            //std::cout << "collide top " << g_game_state.player->get_collided_bottom() << "\n";
+            //std::cout << "velovity y" << g_game_state.player->get_velocity().y << "\n";
+            if (g_game_state.player->get_collided_bottom() ||
                 g_game_state.player->get_collided_left() ||
                 g_game_state.player->get_collided_right()) {
                 LOG("collided with trees!!\n\n");
@@ -289,23 +296,25 @@ void update()
             }
 
             g_game_state.player->update(FIXED_TIMESTEP, g_game_state.ground, GROUND_COUNT);
-            if (g_game_state.player->get_collided_top()) {
+            //std::cout << "collide bottom " << g_game_state.player->get_collided_bottom() << "\n";
+
+            if (g_game_state.player->get_collided_bottom()) {
                 LOG("GROND!\n\n");
                 g_game_result = WIN;
             }
-
             g_game_state.forests[0].update(0.0f, NULL, 0);
             g_game_state.forests[1].update(0.0f, NULL, 0);
+
             g_game_state.ground->update(0.0f, NULL, 0);
 
             delta_time -= FIXED_TIMESTEP;
         }
         // when player is outside of the screen
-        if (g_game_state.player->get_position().x < -4.5f ||
-            g_game_state.player->get_position().x > 4.5f ||
+        if (g_game_state.player->get_position().x < -5.5f ||
+            g_game_state.player->get_position().x > 5.5f ||
             g_game_state.player->get_position().y < -4.5f ||
             g_game_state.player->get_position().y > 4.5f) {
-
+            LOG("out of bound\n");
             g_game_result = LOSE;
         }
 

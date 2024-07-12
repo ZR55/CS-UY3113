@@ -96,6 +96,8 @@ bool const Entity::check_collision(Entity* other) const
 {
     float x_distance = fabs(m_position.x - other->m_position.x) - ((m_width + other->m_width) / 2.0f);
     float y_distance = fabs(m_position.y - other->m_position.y) - ((m_height + other->m_height) / 2.0f);
+    //std::cout << "x distance is: " << x_distance << "\n";
+    //std::cout << "y distance is: " << y_distance << "\n";
 
     return x_distance < 0.0f && y_distance < 0.0f;
 }
@@ -108,6 +110,7 @@ void const Entity::check_collision_y(Entity* collidable_entities, int collidable
 
         if (check_collision(collidable_entity))
         {
+            //std::cout << "collide\n\n";
             float y_distance = fabs(m_position.y - collidable_entity->m_position.y);
             float y_overlap = fabs(y_distance - (m_height / 2.0f) - (collidable_entity->m_height / 2.0f));
             if (m_velocity.y > 0)
@@ -168,15 +171,18 @@ void const Entity::check_collision_x(Entity* collidable_entities, int collidable
 void Entity::update(float delta_time, Entity* collidable_entities, int collidable_entity_count)
 
 {
-
+    //std::cout<<"updating " << collidable_entity_count <<"\n";
     m_collided_top = false;
     m_collided_bottom = false;
     m_collided_left = false;
     m_collided_right = false;
-    for (int i = 0; i < collidable_entity_count; i++)
-    {
-        if (check_collision(&collidable_entities[i])) return;
-    }
+    //for (int i = 0; i < collidable_entity_count; i++)
+    //{
+    //    if (check_collision(&collidable_entities[i])) {
+    //        std::cout << "count: " << collidable_entity_count << "\n";
+    //        std::cout << i << "\n"; return;
+    //    }
+    //}
 
     if (m_animation_indices != NULL)
     {
