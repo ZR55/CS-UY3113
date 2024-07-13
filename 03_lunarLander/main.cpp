@@ -378,14 +378,12 @@ void update()
             if (g_game_state.player->get_collided_bottom() ||
                 g_game_state.player->get_collided_left() ||
                 g_game_state.player->get_collided_right()) {
-                LOG("collided with trees!!\n\n");
                 g_game_result = LOSE;
             }
 
             g_game_state.player->update(FIXED_TIMESTEP, g_game_state.ground, GROUND_COUNT);
 
             if (g_game_state.player->get_collided_bottom()) {
-                LOG("GROND!\n\n");
                 g_game_result = WIN;
             }
             g_game_state.forests[0].update(0.0f, NULL, 0);
@@ -400,7 +398,6 @@ void update()
             g_game_state.player->get_position().x > 5.5f ||
             g_game_state.player->get_position().y < -4.5f ||
             g_game_state.player->get_position().y > 4.5f) {
-            LOG("out of bound\n");
             g_game_result = LOSE;
         }
 
