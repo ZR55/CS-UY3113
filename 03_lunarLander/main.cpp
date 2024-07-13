@@ -77,7 +77,8 @@ constexpr float GROUND_WIDTH = 360 / 78.0f * GROUND_HEIGHT; //2.22
 
 constexpr int FONTBANK_SIZE = 16;
 
-constexpr int ENERGY_MAX = 300;
+//constexpr int ENERGY_MAX = 300;
+constexpr float ENERGY_MAX = 400.0f;
 
 // ––––– GLOBAL VARIABLES ––––– //
 GameState g_game_state;
@@ -94,7 +95,8 @@ GLuint g_font_texture_id;
 
 float g_previous_ticks = 0.0f;
 float g_accumulator = 0.0f;
-int g_energy = ENERGY_MAX;
+//int g_energy = ENERGY_MAX;
+float g_energy = ENERGY_MAX;
 
 // ———— GENERAL FUNCTIONS ———— //
 GLuint load_texture(const char* filepath);
@@ -238,13 +240,6 @@ void initialise()
     int player_animation[4][1] = { {2}, {1}, {3}, {0} };
     GLuint player_texture_id = load_texture(PLAYER_FILEPATH);
 
-    //g_game_state.player = new Entity(
-    //    player_texture_id,         // texture id
-    //    1.0f,                      // speed
-    //    glm::vec3(0.0f, -0.05f, 0.0f),   // acceleration
-    //    0.5f,                      // width
-    //    0.5f                       // height
-    //);
     g_game_state.player = new Entity(
         player_texture_id,         // texture id
         1.0f,                      // speed
@@ -261,7 +256,6 @@ void initialise()
     );
 
     g_game_state.player->set_position(glm::vec3(-4.0f, 2.5f, 0.0f));
-    //g_game_state.player->set_position(glm::vec3(0.0f, 1.5f, 0.0f));
     g_game_state.player->set_scale(glm::vec3(1.f, 1.f, 0.0f));
     g_game_state.player->face_down();
 
@@ -280,10 +274,6 @@ void initialise()
 
         g_game_state.forests[i].set_position(glm::vec3(-4.0f + 9.0f * i, -3.1f, 0.0f));
         g_game_state.forests[i].set_scale(glm::vec3(FOREST_WIDTH, FOREST_HEIGHT, 0.0f));
-        //g_game_state.forests[i].update(0.0f, NULL, 0);
-
-        //g_game_state.forests[i].set_scale(glm::vec3(FOREST_WIDTH, FOREST_HEIGHT, 0.0f));
-
     }
     g_game_state.forests[1].set_rotation(glm::vec3(0.0f, glm::radians(180.0f), 0.0f));
     
@@ -301,7 +291,6 @@ void initialise()
 
     g_game_state.ground->set_position(glm::vec3(0.5f, -3.5f, 0.0f));
     g_game_state.ground->set_scale(glm::vec3(GROUND_WIDTH, GROUND_HEIGHT, 0.0f));
-    //g_game_state.ground->set_scale(glm::vec3(GROUND_WIDTH, GROUND_HEIGHT, 0.0f));
 
     // ----- FONT -----//
     g_font_texture_id = load_texture(FONTSHEET_FILEPATH);
@@ -313,7 +302,6 @@ void initialise()
 
 void process_input()
 {
-    //g_game_state.player->set_movement(glm::vec3(0.0f));
     g_game_state.player->set_acceleration(glm::vec3(0.0f, -0.02f, 0.0f));
 
     SDL_Event event;
@@ -332,12 +320,12 @@ void process_input()
                 // Quit the game with a keystroke
                 g_app_status = TERMINATED;
                 break;
-            case SDLK_UP:
-            case SDLK_DOWN:
-            case SDLK_LEFT:
-            case SDLK_RIGHT:
-                if (g_energy > 0) g_energy--;
-                break;
+            //case SDLK_UP:
+            //case SDLK_DOWN:
+            //case SDLK_LEFT:
+            //case SDLK_RIGHT:
+            //    if (g_energy > 0) g_energy--;
+            //    break;
 
             default:
                 break;
@@ -353,20 +341,20 @@ void process_input()
     if (g_energy > 0) {
         if (key_state[SDL_SCANCODE_LEFT]) {
             g_game_state.player->move_left();
-            //g_energy--;
+            g_energy-=0.01;
         }
         else if (key_state[SDL_SCANCODE_RIGHT]) {
             g_game_state.player->move_right();
-            //g_energy--;
+            g_energy-=0.01;
         }
 
         if (key_state[SDL_SCANCODE_UP]) {
             g_game_state.player->move_up();
-            //g_energy--;
+            g_energy-=0.01;
         }
         else if (key_state[SDL_SCANCODE_DOWN]) {
             g_game_state.player->move_down();
-            //g_energy--;
+            g_energy-=0.01;
         }
 
     }
@@ -393,9 +381,6 @@ void update()
         while (delta_time >= FIXED_TIMESTEP)
         {
             g_game_state.player->update(FIXED_TIMESTEP, g_game_state.forests, FOREST_COUNT);
-            //std::cout << "the height of tree: " << g_game_state.forests[0].get_height() << "\n";
-            //std::cout << "collide top " << g_game_state.player->get_collided_bottom() << "\n";
-            //std::cout << "velovity y" << g_game_state.player->get_velocity().y << "\n";
             if (g_game_state.player->get_collided_bottom() ||
                 g_game_state.player->get_collided_left() ||
                 g_game_state.player->get_collided_right()) {
@@ -404,7 +389,6 @@ void update()
             }
 
             g_game_state.player->update(FIXED_TIMESTEP, g_game_state.ground, GROUND_COUNT);
-            //std::cout << "collide bottom " << g_game_state.player->get_collided_bottom() << "\n";
 
             if (g_game_state.player->get_collided_bottom()) {
                 LOG("GROND!\n\n");
@@ -434,7 +418,7 @@ void render()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    draw_text(&g_shader_program, g_font_texture_id, "Energy: " + std::to_string(g_energy), 0.4f, -0.15f,
+    draw_text(&g_shader_program, g_font_texture_id, "Energy: " + std::to_string((int)g_energy), 0.4f, -0.15f,
         glm::vec3(2.2f, 3.5f, 0.0f));
 
     if (g_game_result == WIN) {
