@@ -76,6 +76,8 @@ constexpr float GROUND_WIDTH = 360 / 78.0f * GROUND_HEIGHT; //2.22
 
 constexpr int FONTBANK_SIZE = 16;
 
+constexpr int ENERGY_MAX = 300;
+
 // ––––– GLOBAL VARIABLES ––––– //
 GameState g_game_state;
 
@@ -91,6 +93,7 @@ GLuint g_font_texture_id;
 
 float g_previous_ticks = 0.0f;
 float g_accumulator = 0.0f;
+int g_energy = ENERGY_MAX;
 
 // ———— GENERAL FUNCTIONS ———— //
 GLuint load_texture(const char* filepath);
@@ -241,8 +244,8 @@ void initialise()
         0.5f                       // height
     );
 
-    //g_game_state.player->set_position(glm::vec3(-4.0f, 2.5f, 0.0f));
-    g_game_state.player->set_position(glm::vec3(0.0f, 1.5f, 0.0f));
+    g_game_state.player->set_position(glm::vec3(-4.0f, 2.5f, 0.0f));
+    //g_game_state.player->set_position(glm::vec3(0.0f, 1.5f, 0.0f));
     g_game_state.player->set_scale(glm::vec3(1.f, 1.f, 0.0f));
 
     // ––––– FOREST ––––– //
@@ -312,6 +315,12 @@ void process_input()
                 // Quit the game with a keystroke
                 g_app_status = TERMINATED;
                 break;
+            case SDLK_UP:
+            case SDLK_DOWN:
+            case SDLK_LEFT:
+            case SDLK_RIGHT:
+                if (g_energy > 0) g_energy--;
+                break;
 
             default:
                 break;
@@ -324,11 +333,26 @@ void process_input()
 
     const Uint8* key_state = SDL_GetKeyboardState(NULL);
 
-    if (key_state[SDL_SCANCODE_LEFT])       g_game_state.player->move_left();
-    else if (key_state[SDL_SCANCODE_RIGHT]) g_game_state.player->move_right();
+    if (g_energy > 0) {
+        if (key_state[SDL_SCANCODE_LEFT]) {
+            g_game_state.player->move_left();
+            //g_energy--;
+        }
+        else if (key_state[SDL_SCANCODE_RIGHT]) {
+            g_game_state.player->move_right();
+            //g_energy--;
+        }
 
-    if (key_state[SDL_SCANCODE_UP])       g_game_state.player->move_up();
-    else if (key_state[SDL_SCANCODE_DOWN]) g_game_state.player->move_down();
+        if (key_state[SDL_SCANCODE_UP]) {
+            g_game_state.player->move_up();
+            //g_energy--;
+        }
+        else if (key_state[SDL_SCANCODE_DOWN]) {
+            g_game_state.player->move_down();
+            //g_energy--;
+        }
+
+    }
 
     if (glm::length(g_game_state.player->get_movement()) > 1.0f)
         g_game_state.player->normalise_movement();
@@ -392,6 +416,9 @@ void update()
 void render()
 {
     glClear(GL_COLOR_BUFFER_BIT);
+
+    draw_text(&g_shader_program, g_font_texture_id, "Energy: " + std::to_string(g_energy), 0.4f, -0.15f,
+        glm::vec3(2.2f, 3.5f, 0.0f));
 
     if (g_game_result == WIN) {
         draw_text(&g_shader_program, g_font_texture_id, "Mission Completed!", 0.5f, -0.05f,
