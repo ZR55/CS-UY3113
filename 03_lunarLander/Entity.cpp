@@ -171,7 +171,6 @@ void const Entity::check_collision_x(Entity* collidable_entities, int collidable
 void Entity::update(float delta_time, Entity* collidable_entities, int collidable_entity_count)
 
 {
-    //std::cout<<"updating " << collidable_entity_count <<"\n";
     m_collided_top = false;
     m_collided_bottom = false;
     m_collided_left = false;

@@ -78,10 +78,6 @@ public:
     void face_up() { m_animation_indices = m_walking[UP]; }
     void face_down() { m_animation_indices = m_walking[DOWN]; }
 
-    //void move_left() { m_acceleration.x = -1.0f; face_left(); }
-    //void move_right() { m_acceleration.x = 1.0f;  face_right(); }
-    //void move_up() { m_acceleration.y = 1.0f;  face_up(); }
-    //void move_down() { m_acceleration.y = -1.0f; face_down(); }
     void move_left() { m_acceleration.x = -ACCELERATION; face_left(); }
     void move_right() { m_acceleration.x = ACCELERATION; face_right(); }
     void move_up() { m_acceleration.y = ACCELERATION; face_up(); }

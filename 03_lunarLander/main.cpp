@@ -320,12 +320,6 @@ void process_input()
                 // Quit the game with a keystroke
                 g_app_status = TERMINATED;
                 break;
-            //case SDLK_UP:
-            //case SDLK_DOWN:
-            //case SDLK_LEFT:
-            //case SDLK_RIGHT:
-            //    if (g_energy > 0) g_energy--;
-            //    break;
 
             default:
                 break;
