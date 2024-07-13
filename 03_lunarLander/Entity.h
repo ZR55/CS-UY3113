@@ -10,7 +10,7 @@ constexpr float ACCELERATION = 0.015f;
 class Entity
 {
 private:
-    int m_walking[4][4]; // 4x4 array for walking animations
+    int m_walking[4][1]; // 4x4 array for walking animations
 
     // ————— TRANSFORMATIONS ————— //
     glm::vec3 m_movement;
@@ -57,7 +57,7 @@ public:
 
     // ————— METHODS ————— //
     Entity();
-    Entity(GLuint texture_id, float speed, glm::vec3 acceleration, float jump_power, int walking[4][4], float animation_time,
+    Entity(GLuint texture_id, float speed, glm::vec3 acceleration, float jump_power, int walking[4][1], float animation_time,
         int animation_frames, int animation_index, int animation_cols,
         int animation_rows, float width, float height);
     Entity(GLuint texture_id, float speed, glm::vec3 acceleration, float width, float height); // Simpler constructor
@@ -82,10 +82,10 @@ public:
     //void move_right() { m_acceleration.x = 1.0f;  face_right(); }
     //void move_up() { m_acceleration.y = 1.0f;  face_up(); }
     //void move_down() { m_acceleration.y = -1.0f; face_down(); }
-    void move_left() { m_acceleration.x = -ACCELERATION; }
-    void move_right() { m_acceleration.x = ACCELERATION; }
-    void move_up() { m_acceleration.y = ACCELERATION; }
-    void move_down() { m_acceleration.y = -ACCELERATION; }
+    void move_left() { m_acceleration.x = -ACCELERATION; face_left(); }
+    void move_right() { m_acceleration.x = ACCELERATION; face_right(); }
+    void move_up() { m_acceleration.y = ACCELERATION; face_up(); }
+    void move_down() { m_acceleration.y = -ACCELERATION; face_down(); }
 
 
     void const jump() { m_is_jumping = true; }
@@ -134,11 +134,11 @@ public:
     void const set_jumping_power(float new_jumping_power) { m_jumping_power = new_jumping_power; }
 
     // Setter for m_walking
-    void set_walking(int walking[4][4])
+    void set_walking(int walking[4][1])
     {
         for (int i = 0; i < 4; ++i)
         {
-            for (int j = 0; j < 4; ++j)
+            for (int j = 0; j < 1; ++j)
             {
                 m_walking[i][j] = walking[i][j];
             }

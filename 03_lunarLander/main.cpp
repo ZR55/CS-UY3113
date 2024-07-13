@@ -60,7 +60,8 @@ constexpr char V_SHADER_PATH[] = "shaders/vertex_textured.glsl",
 F_SHADER_PATH[] = "shaders/fragment_textured.glsl";
 
 constexpr float MILLISECONDS_IN_SECOND = 1000.0;
-constexpr char PLAYER_FILEPATH[] = "assets/parachute.png";
+//constexpr char PLAYER_FILEPATH[] = "assets/parachute.png";
+constexpr char PLAYER_FILEPATH[] = "assets/parachuteSheet.png";
 constexpr char GROUND_FILEPATH[] = "assets/ground.png";
 constexpr char FOREST_FILEPATH[] = "assets/forest.png";
 constexpr char FONTSHEET_FILEPATH[] = "assets/font1.png";
@@ -234,12 +235,27 @@ void initialise()
     glClearColor(BG_RED, BG_BLUE, BG_GREEN, BG_OPACITY);
 
     // ----- PLAYER ----- //
+    int player_animation[4][1] = { {2}, {1}, {3}, {0} };
     GLuint player_texture_id = load_texture(PLAYER_FILEPATH);
 
+    //g_game_state.player = new Entity(
+    //    player_texture_id,         // texture id
+    //    1.0f,                      // speed
+    //    glm::vec3(0.0f, -0.05f, 0.0f),   // acceleration
+    //    0.5f,                      // width
+    //    0.5f                       // height
+    //);
     g_game_state.player = new Entity(
         player_texture_id,         // texture id
         1.0f,                      // speed
         glm::vec3(0.0f, -0.05f, 0.0f),   // acceleration
+        0.0f,   // jump power
+        player_animation,
+        0.0f,   //animation time
+        4,  //animation frames
+        0,  //current index
+        4,  //column
+        1,  //row
         0.5f,                      // width
         0.5f                       // height
     );
@@ -247,6 +263,7 @@ void initialise()
     g_game_state.player->set_position(glm::vec3(-4.0f, 2.5f, 0.0f));
     //g_game_state.player->set_position(glm::vec3(0.0f, 1.5f, 0.0f));
     g_game_state.player->set_scale(glm::vec3(1.f, 1.f, 0.0f));
+    g_game_state.player->face_down();
 
     // ––––– FOREST ––––– //
     g_game_state.forests = new Entity[FOREST_COUNT];
