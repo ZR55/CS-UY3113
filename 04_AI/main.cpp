@@ -54,7 +54,7 @@ F_SHADER_PATH[] = "shaders/fragment_textured.glsl";
 
 constexpr float MILLISECONDS_IN_SECOND = 1000.0;
 
-constexpr char SPRITESHEET_FILEPATH[] = "assets/george_0.png",
+constexpr char PLAYERSHEET_FILEPATH[] = "assets/rabbit.png",
 PLATFORM_FILEPATH[] = "assets/platformPack_tile027.png",
 ENEMY_FILEPATH[] = "assets/soph.png";
 
@@ -167,21 +167,21 @@ void initialise()
         g_game_state.platforms[i].update(0.0f, NULL, NULL, 0);
     }
 
-    GLuint player_texture_id = load_texture(SPRITESHEET_FILEPATH);
+    GLuint player_texture_id = load_texture(PLAYERSHEET_FILEPATH);
 
     int player_walking_animation[4][4] =
     {
-    { 1, 5, 9, 13 },  // for George to move to the left,
-    { 3, 7, 11, 15 }, // for George to move to the right,
-    { 2, 6, 10, 14 }, // for George to move upwards,
-    { 0, 4, 8, 12 }   // for George to move downwards
+    { 4, 5, 6, 7 },  // for George to move to the left,
+    { 12, 13, 14, 15 }, // for George to move to the right,
+    { 0, 1, 2, 3 }, // for George to move upwards,
+    { 8, 9, 10, 11 }   // for George to move downwards
     };
 
     glm::vec3 acceleration = glm::vec3(0.0f, -4.905f, 0.0f);
 
     g_game_state.player = new Entity(
         player_texture_id,         // texture id
-        5.0f,                      // speed
+        3.0f,                      // speed
         acceleration,              // acceleration
         3.0f,                      // jumping power
         player_walking_animation,  // animation index sets
