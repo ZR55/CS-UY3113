@@ -93,6 +93,7 @@ Entity::Entity(GLuint texture_id, float speed, glm::vec3 acceleration, float jum
 {
     face_right();
     set_walking(walking);
+    //set_enemy_animation(enemy_animation);
 }
 
 // Simpler constructor for partial initialization
@@ -106,7 +107,8 @@ Entity::Entity(GLuint texture_id, float speed, float width, float height, Entity
     for (int i = 0; i < SECONDS_PER_FRAME; ++i)
         for (int j = 0; j < SECONDS_PER_FRAME; ++j) m_walking[i][j] = 0;
 }
-Entity::Entity(GLuint texture_id, float speed, float width, float height, EntityType EntityType, AIType AIType, AIState AIState) : m_position(0.0f), m_movement(0.0f), m_scale(1.0f, 1.0f, 0.0f), m_model_matrix(1.0f),
+Entity::Entity(GLuint texture_id, float speed, float width, float height, EntityType EntityType, AIType AIType, AIState AIState) : 
+    m_position(0.0f), m_movement(0.0f), m_scale(1.0f, 1.0f, 0.0f), m_model_matrix(1.0f),
 m_speed(speed), m_animation_cols(0), m_animation_frames(0), m_animation_index(0),
 m_animation_rows(0), m_animation_indices(nullptr), m_animation_time(0.0f),
 m_texture_id(texture_id), m_velocity(0.0f), m_acceleration(0.0f), m_width(width), m_height(height), m_entity_type(EntityType), m_ai_type(AIType), m_ai_state(AIState)
@@ -272,6 +274,13 @@ void Entity::update(float delta_time, Entity* player, Entity* collidable_entitie
 
     m_model_matrix = glm::mat4(1.0f);
     m_model_matrix = glm::translate(m_model_matrix, m_position);
+
+    //if (m_entity_type == ENEMY && (m_position.x <= -4.5 || m_position.x >= 4.5)) {
+    //    //std::cout << "turning\n";
+    //    m_movement.x *= -1;
+    //    //std::cout << "velocity x is: " << m_velocity.x << std::endl;
+
+    //}
 }
 
 

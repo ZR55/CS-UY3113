@@ -3,12 +3,13 @@
 
 #include "glm/glm.hpp"
 #include "ShaderProgram.h"
-enum EntityType { PLATFORM, PLAYER, ENEMY };
+enum EntityType { PLATFORM, PLAYER, ENEMY, VULTURE };
 enum AIType { WALKER, GUARD };
-enum AIState { WALKING, IDLE, ATTACKING };
+enum AIState { IDLE, WALKING, ATTACKING, DYING };
 
 
 enum AnimationDirection { LEFT, RIGHT, UP, DOWN };
+//enum EnemyAnimation {IDLE, WALK, ATTACK, DIE};
 
 class Entity
 {
@@ -16,7 +17,7 @@ private:
     bool m_is_active = true;
 
     int m_walking[4][4]; // 4x4 array for walking animations
-
+    //int m_enemy_animation[4][4];
 
     EntityType m_entity_type;
     AIType     m_ai_type;
@@ -92,6 +93,11 @@ public:
     void move_up() { m_movement.y = 1.0f;  face_up(); }
     void move_down() { m_movement.y = -1.0f; face_down(); }
 
+    //void idling() { m_animation_indices = m_enemy_animation[IDLE]; }
+    //void walking() { m_animation_indices = m_enemy_animation[WALKING]; }
+    //void attacking() { m_animation_indices = m_enemy_animation[ATTACKING]; }
+    //void dying() { m_animation_indices = m_enemy_animation[DYING]; }
+
     void const jump() { m_is_jumping = true; }
 
     // ————— GETTERS ————— //
@@ -143,6 +149,18 @@ public:
             }
         }
     }
+
+    // Setter for m_enemy_animation
+    //void set_enemy_animation(int enemy_animation[4][4])
+    //{
+    //    for (int i = 0; i < 4; ++i)
+    //    {
+    //        for (int j = 0; j < 4; ++j)
+    //        {
+    //            m_enemy_animation[i][j] = enemy_animation[i][j];
+    //        }
+    //    }
+    //}
 };
 
 #endif // ENTITY_H

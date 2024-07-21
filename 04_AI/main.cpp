@@ -14,7 +14,7 @@
 #define GL_GLEXT_PROTOTYPES 1
 #define FIXED_TIMESTEP 0.0166666f
 #define PLATFORM_COUNT 11
-#define ENEMY_COUNT 1
+constexpr int ENEMY_COUNT = 3;
 
 #ifdef _WINDOWS
 #include <GL/glew.h>
@@ -66,7 +66,9 @@ constexpr float MILLISECONDS_IN_SECOND = 1000.0;
 
 constexpr char PLAYERSHEET_FILEPATH[] = "assets/rabbit.png",
 PLATFORM_FILEPATH[] = "assets/platformPack_tile027.png",
-ENEMY_FILEPATH[] = "assets/soph.png";
+VULTURESHEET_FILEPATH[] = "assets/vulture_static.png",
+FOXSHEET_FILEPATH[] = "assets/fox_static.png",
+HUNTERSHEET_FILEPATH[] = "assets/hunter_static.png";
 
 constexpr char BGM_FILEPATH[] = "assets/dooblydoo.mp3",
 SFX_FILEPATH[] = "assets/bounce.wav";
@@ -177,6 +179,8 @@ void initialise()
         g_game_state.platforms[i].update(0.0f, NULL, NULL, 0);
     }
 
+
+    // ------ PLAYER ------//
     GLuint player_texture_id = load_texture(PLAYERSHEET_FILEPATH);
 
     int player_walking_animation[4][4] =
@@ -209,27 +213,113 @@ void initialise()
     // Jumping
     g_game_state.player->set_jumping_power(3.0f);
 
-    // ––––– SOPHIE ––––– //
-    GLuint enemy_texture_id = load_texture(ENEMY_FILEPATH);
-
+    // ––––– VULTURE ––––– //
     g_game_state.enemies = new Entity[ENEMY_COUNT];
+    GLuint vulture_texture_id = load_texture(VULTURESHEET_FILEPATH);
+    GLuint fox_texture_id = load_texture(FOXSHEET_FILEPATH);
+    GLuint hunter_texture_id = load_texture(HUNTERSHEET_FILEPATH);
 
-    for (int i = 0; i < ENEMY_COUNT; i++)
-    {
-        g_game_state.enemies[i] = Entity(enemy_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, GUARD, IDLE);
+
+    //for (int i = 0; i < ENEMY_COUNT; i++)
+    //{
+    //    g_game_state.enemies[i] = Entity(enemy_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, GUARD, IDLE);
+    //}
+
+     //works
+    //for (int i = 0; i < ENEMY_COUNT; i++) {
+    //    g_game_state.enemies[i] = Entity(fox_texture_id, 1.0f, 1.0f, 1.f, ENEMY, WALKER, IDLE);
+    //    g_game_state.enemies[i].set_position(glm::vec3(4.0f, 2.5f - 0.5 * i, 0.0f));
+    //}
+    
+    // doesn't work
+    for (int i = 0; i < ENEMY_COUNT; i++) {
+        //std::cout << sizeof(g_game_state.enemies[0].get_texture_id()) << std::endl;
+        //std::cout << sizeof(g_game_state.enemies[1].get_texture_id()) << std::endl;
+        //std::cout << sizeof(g_game_state.enemies[2].get_texture_id()) << std::endl;
+        if (i == 0) {
+            //std::cout << i << std::endl;
+            std::cout << g_game_state.enemies[i].get_texture_id() << std::endl;
+            g_game_state.enemies[i] = Entity(fox_texture_id, 1.0f, 1.0f, 1.f, ENEMY, WALKER, IDLE);
+            std::cout << g_game_state.enemies[i].get_texture_id() << std::endl;
+            g_game_state.enemies[0].set_position(glm::vec3(4.0f, 2.5f, 0.0f));
+        }
+        if (i == 1) {
+            //std::cout << i << std::endl;
+            std::cout << g_game_state.enemies[i].get_texture_id() << std::endl;
+            g_game_state.enemies[i] = Entity(vulture_texture_id, 1.0f, 1.0f, 1.f, ENEMY, WALKER, IDLE);
+            std::cout << g_game_state.enemies[i].get_texture_id() << std::endl;
+            g_game_state.enemies[1].set_position(glm::vec3(4.0f, 1.0f, 0.0f));
+        }
+        if (i == 2) {
+            //std::cout << i << std::endl;
+            std::cout << g_game_state.enemies[i].get_texture_id() << std::endl;
+            g_game_state.enemies[i] = Entity(hunter_texture_id, 1.0f, 1.0f, 1.f, ENEMY, WALKER, IDLE);
+            std::cout << g_game_state.enemies[i].get_texture_id() << std::endl;
+            g_game_state.enemies[2].set_position(glm::vec3(4.0f, -0.5f, 0.0f));
+        }
+        //g_game_state.enemies[i].update(0.0f, NULL, NULL, 0);
     }
 
+    //g_game_state.enemies[0] = Entity(fox_texture_id, 1.0f, 1.0f, 1.0f, ENEMY);
+    //g_game_state.enemies[0].set_position(glm::vec3(4.0f, 2.5f, 0.0f));
+    //g_game_state.enemies[0].set_texture_id(vulture_texture_id);
+    //g_game_state.enemies[0].set_speed(1.0f);
+    //g_game_state.enemies[0].set_width(1.0f);
+    //g_game_state.enemies[0].set_height(1.0f);
+    //g_game_state.enemies[0].set_ai_state(WALKING);
+    //g_game_state.enemies[0].set_ai_type(WALKER);
+    //g_game_state.enemies[0].set_entity_type(ENEMY);
+    //std::cout << "initailized 0\n";
+    //std::cout << "texture id for 0 is: " << g_game_state.enemies[0].get_texture_id() << std::endl;
 
-    g_game_state.enemies[0].set_position(glm::vec3(3.0f, 0.0f, 0.0f));
-    g_game_state.enemies[0].set_movement(glm::vec3(0.0f));
-    g_game_state.enemies[0].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
+    //g_game_state.enemies[1] = Entity(fox_texture_id, 1.0f, 1.0f, 1.0f, ENEMY);
+    //g_game_state.enemies[1].set_position(glm::vec3(-2.0f, 2.0f, 0.0f));
+    //g_game_state.enemies[1].set_texture_id(fox_texture_id);
+    //g_game_state.enemies[1].set_speed(1.0f);
+    //g_game_state.enemies[1].set_width(1.0f);
+    //g_game_state.enemies[1].set_height(1.0f);
+    //g_game_state.enemies[1].set_ai_state(WALKING);
+    //g_game_state.enemies[1].set_ai_type(WALKER);
+    //g_game_state.enemies[1].set_entity_type(ENEMY);
+    //std::cout << "initailized 1\n";
+    //std::cout << "texture id for 1 is: " << g_game_state.enemies[1].get_texture_id() << std::endl;
+
+
+    //g_game_state.enemies[2] = Entity(fox_texture_id, 1.0f, 1.0f, 1.0f, ENEMY);
+    //g_game_state.enemies[2].set_texture_id(fox_texture_id);
+    //g_game_state.enemies[2].set_position(glm::vec3(0.0f, -0.0f, 0.0f));
+    //g_game_state.enemies[2].set_speed(1.0f);
+    //g_game_state.enemies[2].set_width(1.0f);
+    //g_game_state.enemies[2].set_height(1.0f);
+    //g_game_state.enemies[2].set_ai_state(WALKING);
+    //g_game_state.enemies[2].set_ai_type(WALKER);
+    //g_game_state.enemies[2].set_entity_type(ENEMY);
+    //std::cout << "initailized 2\n";
+    //std::cout << "texture id for 2 is: " << g_game_state.enemies[2].get_texture_id() << std::endl;
+
+
+    //g_game_state.enemies[0].set_movement(glm::vec3(-1.0f,0.f,0.f));
+    //g_game_state.enemies[0].set_acceleration(glm::vec3())
+    //g_game_state.enemies[0].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
+
+    // ––––– FOX ––––– //
+
+    //g_game_state.enemies[1].set_movement(glm::vec3(-1.0f));
+    //g_game_state.enemies[0].set_acceleration(glm::vec3())
+    //g_game_state.enemies[0].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
+
+    //for (int i = 0; i < ENEMY_COUNT; i++) {
+    //    g_game_state.enemies[i].update(0.0f, NULL, NULL, 0);
+    //}
+    //g_game_state.enemies[2].set_movement(glm::vec3(-1.0f));
+
 
     // ––––– AUDIO STUFF ––––– //
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
 
     g_game_state.bgm = Mix_LoadMUS(BGM_FILEPATH);
     Mix_PlayMusic(g_game_state.bgm, -1);
-    Mix_VolumeMusic(MIX_MAX_VOLUME / 4.0f);
+    Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
 
     g_game_state.jump_sfx = Mix_LoadWAV(SFX_FILEPATH);
 
