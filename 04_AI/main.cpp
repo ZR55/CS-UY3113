@@ -241,21 +241,21 @@ void initialise()
             std::cout << g_game_state.enemies[i].get_texture_id() << std::endl;
             g_game_state.enemies[i] = Entity(fox_texture_id, 1.0f, 1.0f, 1.f, ENEMY, WALKER, IDLE);
             std::cout << g_game_state.enemies[i].get_texture_id() << std::endl;
-            g_game_state.enemies[0].set_position(glm::vec3(4.0f, 2.5f, 0.0f));
+            g_game_state.enemies[i].set_position(glm::vec3(4.0f, 2.5f, 0.0f));
         }
         if (i == 1) {
             //std::cout << i << std::endl;
             std::cout << g_game_state.enemies[i].get_texture_id() << std::endl;
             g_game_state.enemies[i] = Entity(vulture_texture_id, 1.0f, 1.0f, 1.f, ENEMY, WALKER, IDLE);
             std::cout << g_game_state.enemies[i].get_texture_id() << std::endl;
-            g_game_state.enemies[1].set_position(glm::vec3(4.0f, 1.0f, 0.0f));
+            g_game_state.enemies[i].set_position(glm::vec3(4.0f, 1.0f, 0.0f));
         }
         if (i == 2) {
             //std::cout << i << std::endl;
             std::cout << g_game_state.enemies[i].get_texture_id() << std::endl;
             g_game_state.enemies[i] = Entity(hunter_texture_id, 1.0f, 1.0f, 1.f, ENEMY, WALKER, IDLE);
             std::cout << g_game_state.enemies[i].get_texture_id() << std::endl;
-            g_game_state.enemies[2].set_position(glm::vec3(4.0f, -0.5f, 0.0f));
+            g_game_state.enemies[i].set_position(glm::vec3(4.0f, -0.5f, 0.0f));
         }
         //g_game_state.enemies[i].update(0.0f, NULL, NULL, 0);
     }
