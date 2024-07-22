@@ -13,12 +13,9 @@
 		3C48601C2C4EA93D00752526 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C48601B2C4EA93D00752526 /* Cocoa.framework */; };
 		3C48601E2C4EA94A00752526 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C48601D2C4EA94A00752526 /* OpenGL.framework */; };
 		3C500AB52C4EB1A50048C516 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C500AB42C4EB1A50048C516 /* main.cpp */; };
-		3C500AC32C4EBB390048C516 /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C500AB62C4EB2630048C516 /* SDL2_image.framework */; };
-		3C500AC42C4EBB390048C516 /* SDL2_image.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3C500AB62C4EB2630048C516 /* SDL2_image.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		3C500AC62C4EBB3B0048C516 /* SDL2_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C500AB72C4EB2630048C516 /* SDL2_mixer.framework */; };
-		3C500AC72C4EBB3B0048C516 /* SDL2_mixer.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3C500AB72C4EB2630048C516 /* SDL2_mixer.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		3C500AC82C4EBB3C0048C516 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C500AB82C4EB2630048C516 /* SDL2.framework */; };
-		3C500AC92C4EBB3C0048C516 /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3C500AB82C4EB2630048C516 /* SDL2.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		3CAFC2B32C4EDF9F005BF0FA /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C500AB62C4EB2630048C516 /* SDL2_image.framework */; };
+		3CAFC2B62C4EDFA0005BF0FA /* SDL2_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C500AB72C4EB2630048C516 /* SDL2_mixer.framework */; };
+		3CAFC2B82C4EDFA1005BF0FA /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C500AB82C4EB2630048C516 /* SDL2.framework */; };
 		3CCF665C2C4E0B8A0041040F /* assets in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3C3B41922C4DF77F00A234B3 /* assets */; };
 /* End PBXBuildFile section */
 
@@ -32,19 +29,6 @@
 				3C3B41912C4DF67E00A234B3 /* shaders in CopyFiles */,
 				3CCF665C2C4E0B8A0041040F /* assets in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		3C500AC52C4EBB390048C516 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				3C500AC92C4EBB3C0048C516 /* SDL2.framework in Embed Frameworks */,
-				3C500AC42C4EBB390048C516 /* SDL2_image.framework in Embed Frameworks */,
-				3C500AC72C4EBB3B0048C516 /* SDL2_mixer.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -72,11 +56,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3C500AC82C4EBB3C0048C516 /* SDL2.framework in Frameworks */,
-				3C500AC62C4EBB3B0048C516 /* SDL2_mixer.framework in Frameworks */,
+				3CAFC2B82C4EDFA1005BF0FA /* SDL2.framework in Frameworks */,
+				3CAFC2B62C4EDFA0005BF0FA /* SDL2_mixer.framework in Frameworks */,
 				3C48601E2C4EA94A00752526 /* OpenGL.framework in Frameworks */,
 				3C48601C2C4EA93D00752526 /* Cocoa.framework in Frameworks */,
-				3C500AC32C4EBB390048C516 /* SDL2_image.framework in Frameworks */,
+				3CAFC2B32C4EDF9F005BF0FA /* SDL2_image.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -138,7 +122,6 @@
 				3C3B41722C4DEF3400A234B3 /* Sources */,
 				3C3B41732C4DEF3400A234B3 /* Frameworks */,
 				3C3B41742C4DEF3400A234B3 /* CopyFiles */,
-				3C500AC52C4EBB390048C516 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -318,6 +301,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
+				DYLIB_INSTALL_NAME_BASE = "";
 				"EXCLUDED_ARCHS[sdk=*]" = arm64;
 				FRAMEWORK_SEARCH_PATHS = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				"HEADER_SEARCH_PATHS[arch=*]" = (
@@ -325,11 +309,12 @@
 					/Library/Frameworks/SDL2_image.framework/Versions/A/Headers,
 					/Library/Frameworks/SDL2_mixer.framework/Versions/A/Headers,
 				);
-				LD_RUNPATH_SEARCH_PATHS = "";
+				LD_RUNPATH_SEARCH_PATHS = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 11.3;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				VALIDATE_PRODUCT = NO;
 			};
 			name = Debug;
 		};
@@ -340,12 +325,14 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
+				DYLIB_INSTALL_NAME_BASE = "";
 				FRAMEWORK_SEARCH_PATHS = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "";
+				LD_RUNPATH_SEARCH_PATHS = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = "";
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				VALIDATE_PRODUCT = NO;
 			};
 			name = Release;
 		};
