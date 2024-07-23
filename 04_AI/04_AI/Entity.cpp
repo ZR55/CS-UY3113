@@ -184,6 +184,8 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
 
                     // Collision!
                     m_collided_top  = true;
+                    
+                    // TODO: player dies
                 } else if (m_velocity.y < 0)
                 {
                     m_position.y      += y_overlap;
@@ -223,6 +225,8 @@ void const Entity::check_collision_x(Entity *collidable_entities, int collidable
                     // Collision!
                     m_collided_right  = true;
                     
+                    // TODO: player dies
+                    
                 } else if (m_velocity.x < 0)
                 {
                     m_position.x    += x_overlap;
@@ -230,6 +234,8 @@ void const Entity::check_collision_x(Entity *collidable_entities, int collidable
      
                     // Collision!
                     m_collided_left  = true;
+                    
+                    // TODO: player dies
                 }
             }
         }

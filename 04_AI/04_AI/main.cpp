@@ -236,7 +236,7 @@ void initialise()
     g_game_state.player->set_position(glm::vec3(6.5f, -0.5f, 0.0f));
 
     // Jumping
-    g_game_state.player->set_jumping_power(3.0f);
+    g_game_state.player->set_jumping_power(4.0f);
 
     g_game_state.enemies = new Entity[ENEMY_COUNT];
     GLuint vulture_texture_id = load_texture(VULTURESHEET_FILEPATH);
