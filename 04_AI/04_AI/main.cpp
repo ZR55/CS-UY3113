@@ -222,7 +222,7 @@ void initialise()
         0.9f,                       // height
         PLAYER
     );
-
+    g_game_state.player->set_position(glm::vec3(4.5f, 0.0f, 0.0f));
 
     // Jumping
     g_game_state.player->set_jumping_power(3.0f);
@@ -329,11 +329,11 @@ void update()
     {
         g_game_state.player->update(FIXED_TIMESTEP, g_game_state.player, g_game_state.enemies, ENEMY_COUNT, g_game_state.map);
 
-//        for (int i = 0; i < ENEMY_COUNT; i++)
-//            g_game_state.enemies[i].update(FIXED_TIMESTEP,
-//                g_game_state.player,
-//                g_game_state.platforms,
-//                PLATFORM_COUNT);
+        for (int i = 0; i < ENEMY_COUNT; i++)
+            g_game_state.enemies[i].update(FIXED_TIMESTEP,
+                g_game_state.player,
+                NULL, 0,
+                g_game_state.map);
 
         delta_time -= FIXED_TIMESTEP;
     }
