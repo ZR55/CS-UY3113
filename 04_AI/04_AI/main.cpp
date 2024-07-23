@@ -15,7 +15,7 @@
 #define FIXED_TIMESTEP 0.0166666f
 #define PLATFORM_COUNT 11
 #define ENEMY_COUNT 3
-#define LEVEL1_WIDTH 14
+#define LEVEL1_WIDTH 15
 #define LEVEL1_HEIGHT 5
 
 #ifdef _WINDOWS
@@ -50,8 +50,8 @@ struct GameState
 enum AppStatus { RUNNING, TERMINATED };
 
 // ----- CONSTANTS ----- //
-constexpr int WINDOW_WIDTH = 640 * 2,
-WINDOW_HEIGHT = 480 * 2;
+constexpr int WINDOW_WIDTH = 640,
+WINDOW_HEIGHT = 480;
 
 constexpr float BG_RED = 0.1922f,
 BG_BLUE = 0.549f,
@@ -68,8 +68,10 @@ F_SHADER_PATH[] = "shaders/fragment_textured.glsl";
 
 constexpr float MILLISECONDS_IN_SECOND = 1000.0;
 
-constexpr char PLAYERSHEET_FILEPATH[] = "assets/rabbit.png",
-TILESET_FILEPATH[] = "assets/tileset.png",
+//constexpr char PLAYERSHEET_FILEPATH[] = "assets/rabbit.png",
+constexpr char PLAYERSHEET_FILEPATH[] = "assets/george_0.png",
+TILESET_FILEPATH[] = "assets/winterTileSheet1.png",
+//TILESET_FILEPATH[] = "assets/tileset.png",
 VULTURESHEET_FILEPATH[] = "assets/vulture_static.png",
 FOXSHEET_FILEPATH[] = "assets/fox_static.png",
 HUNTERSHEET_FILEPATH[] = "assets/hunter_static.png";
@@ -98,11 +100,12 @@ float g_accumulator = 0.0f;
 AppStatus g_app_status = RUNNING;
 
 unsigned int LEVEL_1_DATA[] = {
-    0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
-    2, 2, 1, 1, 0, 0, 1, 1, 1, 2, 2, 2, 2, 2,
-    2, 2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2
+    19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    19, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    19, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5
+    
 };
 
 GLuint load_texture(const char* filepath);
@@ -179,7 +182,7 @@ void initialise()
     
     // ————— MAP SET-UP ————— //
     GLuint map_texture_id = load_texture(TILESET_FILEPATH);
-    g_game_state.map = new Map(LEVEL1_WIDTH, LEVEL1_HEIGHT, LEVEL_1_DATA, map_texture_id, .5f, 4, 1);
+    g_game_state.map = new Map(LEVEL1_WIDTH, LEVEL1_HEIGHT, LEVEL_1_DATA, map_texture_id, 1.f, 5, 4);
 
     // ----- PLATFORM ----- //
 //    GLuint platform_texture_id = load_texture(TILESET_FILEPATH);
@@ -197,13 +200,21 @@ void initialise()
     // ------ PLAYER ------//
     GLuint player_texture_id = load_texture(PLAYERSHEET_FILEPATH);
 
+//    int player_walking_animation[4][4] =
+//    {
+//    { 4, 5, 6, 7 },  // for player to move to the left,
+//    { 12, 13, 14, 15 }, // for player to move to the right,
+//    { 0, 1, 2, 3 }, // for player to move upwards,
+//    { 8, 9, 10, 11 }   // for player to move downwards
+//    };
     int player_walking_animation[4][4] =
     {
-    { 4, 5, 6, 7 },  // for George to move to the left,
-    { 12, 13, 14, 15 }, // for George to move to the right,
-    { 0, 1, 2, 3 }, // for George to move upwards,
-    { 8, 9, 10, 11 }   // for George to move downwards
+        { 1, 5, 9, 13 },  // for George to move to the left,
+        { 3, 7, 11, 15 }, // for George to move to the right,
+        { 2, 6, 10, 14 }, // for George to move upwards,
+        { 0, 4, 8, 12 }   // for George to move downwards
     };
+
 
     glm::vec3 acceleration = glm::vec3(0.0f, -4.905f, 0.0f);
 
@@ -218,11 +229,11 @@ void initialise()
         0,                         // current animation index
         4,                         // animation column amount
         4,                         // animation row amount
-        0.9f,                      // width
-        0.9f,                       // height
+        1.0f,                      // width
+        1.0f,                       // height
         PLAYER
     );
-    g_game_state.player->set_position(glm::vec3(4.5f, 0.0f, 0.0f));
+    g_game_state.player->set_position(glm::vec3(4.5f, -0.5f, 0.0f));
 
     // Jumping
     g_game_state.player->set_jumping_power(3.0f);
@@ -240,7 +251,7 @@ void initialise()
     // ----- FOX ----- //
 
     g_game_state.enemies[1] = Entity(fox_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, GUARD, IDLE);
-    g_game_state.enemies[1].set_position(glm::vec3(-2.0f, 2.0f, 0.0f));
+    g_game_state.enemies[1].set_position(glm::vec3(2.0f, -2.0f, 0.0f));
 
     // ----- HUNTER ----- //
     g_game_state.enemies[2] = Entity(hunter_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, WALKER, IDLE);
