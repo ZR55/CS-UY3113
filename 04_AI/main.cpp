@@ -215,10 +215,10 @@ void initialise()
 
     // ––––– VULTURE ––––– //
     g_game_state.enemies = new Entity[ENEMY_COUNT];
-    GLuint vulture_texture_id = load_texture(VULTURESHEET_FILEPATH);
     GLuint fox_texture_id = load_texture(FOXSHEET_FILEPATH);
+    GLuint vulture_texture_id = load_texture(VULTURESHEET_FILEPATH);
     GLuint hunter_texture_id = load_texture(HUNTERSHEET_FILEPATH);
-
+    GLuint enemy_texture_id;
 
     //for (int i = 0; i < ENEMY_COUNT; i++)
     //{
@@ -239,6 +239,7 @@ void initialise()
         if (i == 0) {
             //std::cout << i << std::endl;
             std::cout << g_game_state.enemies[i].get_texture_id() << std::endl;
+
             g_game_state.enemies[i] = Entity(fox_texture_id, 1.0f, 1.0f, 1.f, ENEMY, WALKER, IDLE);
             std::cout << g_game_state.enemies[i].get_texture_id() << std::endl;
             g_game_state.enemies[i].set_position(glm::vec3(4.0f, 2.5f, 0.0f));
