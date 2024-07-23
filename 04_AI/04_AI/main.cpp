@@ -69,7 +69,7 @@ F_SHADER_PATH[] = "shaders/fragment_textured.glsl";
 constexpr float MILLISECONDS_IN_SECOND = 1000.0;
 
 constexpr char PLAYERSHEET_FILEPATH[] = "assets/rabbit.png",
-TILESET_FILEPATH[] = "assets/tileSheet.png",
+TILESET_FILEPATH[] = "assets/tileset.png",
 VULTURESHEET_FILEPATH[] = "assets/vulture_static.png",
 FOXSHEET_FILEPATH[] = "assets/fox_static.png",
 HUNTERSHEET_FILEPATH[] = "assets/hunter_static.png";
@@ -179,7 +179,7 @@ void initialise()
     
     // ————— MAP SET-UP ————— //
     GLuint map_texture_id = load_texture(TILESET_FILEPATH);
-    g_game_state.map = new Map(LEVEL1_WIDTH, LEVEL1_HEIGHT, LEVEL_1_DATA, map_texture_id, 1.f, 6, 1);
+    g_game_state.map = new Map(LEVEL1_WIDTH, LEVEL1_HEIGHT, LEVEL_1_DATA, map_texture_id, .5f, 4, 1);
 
     // ----- PLATFORM ----- //
 //    GLuint platform_texture_id = load_texture(TILESET_FILEPATH);
@@ -339,10 +339,15 @@ void update()
     }
 
     g_accumulator = delta_time;
+    
+    g_view_matrix = glm::mat4(1.0f);
+    g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-g_game_state.player->get_position().x, 0.0f, 0.0f));
 }
 
 void render()
 {
+    g_shader_program.set_view_matrix(g_view_matrix);
+    
     glClear(GL_COLOR_BUFFER_BIT);
 
     g_game_state.player->render(&g_shader_program);
