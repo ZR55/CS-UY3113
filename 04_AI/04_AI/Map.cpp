@@ -107,6 +107,7 @@ bool Map::is_solid(glm::vec3 position, float *penetration_x, float *penetration_
     float tile_center_y = -(tile_y * m_tile_size);
     
     // And because we likely have some overlap, we adjust for that
+    // TODO: didn't take into account of the scale of the character
     *penetration_x = (m_tile_size / 2) - fabs(position.x - tile_center_x);
     *penetration_y = (m_tile_size / 2) - fabs(position.y - tile_center_y);
     

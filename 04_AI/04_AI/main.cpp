@@ -101,7 +101,7 @@ AppStatus g_app_status = RUNNING;
 
 unsigned int LEVEL_1_DATA[] = {
     19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     19, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
     19, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5
@@ -216,12 +216,12 @@ void initialise()
     };
 
 
-    glm::vec3 acceleration = glm::vec3(0.0f, -4.905f, 0.0f);
+    glm::vec3 gravity = glm::vec3(0.0f, -4.905f, 0.0f);
 
     g_game_state.player = new Entity(
         player_texture_id,         // texture id
         3.0f,                      // speed
-        acceleration,              // acceleration
+        gravity,              // acceleration
         3.0f,                      // jumping power
         player_walking_animation,  // animation index sets
         0.0f,                      // animation time
@@ -233,7 +233,7 @@ void initialise()
         1.0f,                       // height
         PLAYER
     );
-    g_game_state.player->set_position(glm::vec3(4.5f, -0.5f, 0.0f));
+    g_game_state.player->set_position(glm::vec3(6.5f, -0.5f, 0.0f));
 
     // Jumping
     g_game_state.player->set_jumping_power(3.0f);
@@ -252,6 +252,8 @@ void initialise()
 
     g_game_state.enemies[1] = Entity(fox_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, GUARD, IDLE);
     g_game_state.enemies[1].set_position(glm::vec3(2.0f, -2.0f, 0.0f));
+    g_game_state.enemies[1].set_acceleration(gravity);
+//    g_game_state.enemies[1].set_scale(glm::vec3(968/332.f, 1.0f, 0.0f));
 
     // ----- HUNTER ----- //
     g_game_state.enemies[2] = Entity(hunter_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, WALKER, IDLE);
@@ -340,11 +342,13 @@ void update()
     {
         g_game_state.player->update(FIXED_TIMESTEP, g_game_state.player, g_game_state.enemies, ENEMY_COUNT, g_game_state.map);
 
-        for (int i = 0; i < ENEMY_COUNT; i++)
+        for (int i = 0; i < ENEMY_COUNT; i++) {
             g_game_state.enemies[i].update(FIXED_TIMESTEP,
                 g_game_state.player,
-                NULL, 0,
+                NULL, NULL,
                 g_game_state.map);
+        }
+
 
         delta_time -= FIXED_TIMESTEP;
     }
