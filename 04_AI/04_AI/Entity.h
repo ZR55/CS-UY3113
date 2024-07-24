@@ -36,7 +36,7 @@ private:
 
     float     m_speed,
               m_jumping_power,
-    m_rotation_theta = 0.0f;
+    m_rotation_theta = 180.0f;
     
     bool m_is_jumping;
 

@@ -76,7 +76,8 @@ void Entity::ai_guard(Entity *player)
 void Entity::ai_fly() {
 //    m_rotation_direction = glm::vec3(0.0f, 0.0f, -1.0f);
 //    m_rotation_theta_sin = m_rotation_theta_cos;
-    m_rotation_theta++;
+    m_rotation_theta += m_speed;
+    if (m_rotation_theta > 360 || m_rotation_theta < 180) m_speed *= -1;
 }
 
 // Default constructor
@@ -378,12 +379,12 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
     m_velocity.x = m_movement.x * m_speed;
     m_velocity += m_acceleration * delta_time;
     
-    if (m_ai_type == FLYER) m_position.y = m_rotation_center.y + glm::sin(m_rotation_theta * delta_time);
+    if (m_ai_type == FLYER) m_position.y = m_rotation_center.y + glm::sin(m_rotation_theta * delta_time) * 1.6f;
     else m_position.y += m_velocity.y * delta_time;
     check_collision_y(collidable_entities, collidable_entity_count);
     check_collision_y(map);
     
-    if (m_ai_type == FLYER) m_position.x = m_rotation_center.x + glm::cos(m_rotation_theta * delta_time);
+    if (m_ai_type == FLYER) m_position.x = m_rotation_center.x + glm::cos(m_rotation_theta * delta_time) * 1.6f;
     else m_position.x += m_velocity.x * delta_time;
     check_collision_x(collidable_entities, collidable_entity_count);
     check_collision_x(map);

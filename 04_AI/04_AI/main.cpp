@@ -252,7 +252,7 @@ void initialise()
     
     // ----- VULTURE ----- //
     g_game_state.enemies[0] = Entity(vulture_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, FLYER, IDLE);
-    g_game_state.enemies[0].set_position(glm::vec3(8.0f, -1.5f, 0.0f));
+    g_game_state.enemies[0].set_position(glm::vec3(8.0f, -0.5f, 0.0f));
 //    g_game_state.enemies[0].set_movement(glm::vec3(-1.0f,0.f,0.f));
 
     // ----- FOX ----- //
