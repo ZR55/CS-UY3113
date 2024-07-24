@@ -38,7 +38,7 @@ private:
               m_jumping_power,
     m_rotation_theta = 180.0f;
     
-    bool m_is_jumping;
+    bool m_is_jumping = false;
 
     // ————— TEXTURES ————— //
     GLuint    m_texture_id;

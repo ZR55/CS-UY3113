@@ -239,9 +239,9 @@ void initialise()
         1.0f,                       // height
         PLAYER
     );
-    g_game_state.player->set_position(glm::vec3(6.5f, -5.0f, 0.0f));
+    g_game_state.player->set_position(glm::vec3(7.0f, -4.0f, 0.0f));
     // Jumping
-    g_game_state.player->set_jumping_power(4.0f);
+    g_game_state.player->set_jumping_power(4.5f);
     g_game_state.player->set_enemy_count(ENEMY_COUNT);
 
     g_game_state.enemies = new Entity[ENEMY_COUNT];
@@ -272,13 +272,13 @@ void initialise()
 
 
     // ----- AUDIO STUFF ----- //
-    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
-
-    g_game_state.bgm = Mix_LoadMUS(BGM_FILEPATH);
-    Mix_PlayMusic(g_game_state.bgm, -1);
-    Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
-
-    g_game_state.jump_sfx = Mix_LoadWAV(SFX_FILEPATH);
+//    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
+//
+//    g_game_state.bgm = Mix_LoadMUS(BGM_FILEPATH);
+//    Mix_PlayMusic(g_game_state.bgm, -1);
+//    Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
+//
+//    g_game_state.jump_sfx = Mix_LoadWAV(SFX_FILEPATH);
 
     // ----- GENERAL STUFF ----- //
     glEnable(GL_BLEND);
@@ -310,8 +310,9 @@ void process_input()
                 // Jump
                 if (g_game_state.player->get_collided_bottom())
                 {
+                    LOG("jumping\n");
                     g_game_state.player->jump();
-                    Mix_PlayChannel(-1, g_game_state.jump_sfx, 0);
+//                    Mix_PlayChannel(-1, g_game_state.jump_sfx, 0);
                 }
                 break;
 
