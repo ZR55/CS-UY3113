@@ -182,7 +182,7 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
     for (int i = 0; i < collidable_entity_count; i++)
     {
         Entity *collidable_entity = &collidable_entities[i];
-        if (collidable_entity->m_is_active) {
+        if (collidable_entity->m_is_active && m_is_active) {
             if (check_collision(collidable_entity))
             {
                 float y_distance = fabs(m_position.y - collidable_entity->m_position.y);
@@ -230,7 +230,7 @@ void const Entity::check_collision_x(Entity *collidable_entities, int collidable
     {
         Entity *collidable_entity = &collidable_entities[i];
         
-        if (collidable_entity->m_is_active) {
+        if (collidable_entity->m_is_active && m_is_active) {
             if (check_collision(collidable_entity))
             {
                 float x_distance = fabs(m_position.x - collidable_entity->m_position.x);

@@ -14,7 +14,7 @@
 #define GL_GLEXT_PROTOTYPES 1
 #define FIXED_TIMESTEP 0.0166666f
 #define PLATFORM_COUNT 11
-#define ENEMY_COUNT 3
+#define ENEMY_COUNT 4
 #define LEVEL1_WIDTH 20
 #define LEVEL1_HEIGHT 8
 #define LEFT_EDGE 5.0f
@@ -76,7 +76,8 @@ TILESET_FILEPATH[] = "assets/winterTileSheet1.png",
 //TILESET_FILEPATH[] = "assets/tileset.png",
 VULTURESHEET_FILEPATH[] = "assets/vulture_static.png",
 FOXSHEET_FILEPATH[] = "assets/fox_static.png",
-HUNTERSHEET_FILEPATH[] = "assets/hunter_static.png";
+HUNTERSHEET_FILEPATH[] = "assets/hunter_static.png",
+BULLETSHEET_FILEPATH[] = "assets/bullet.png";
 
 constexpr char BGM_FILEPATH[] = "assets/dooblydoo.mp3",
 SFX_FILEPATH[] = "assets/bounce.wav";
@@ -107,8 +108,8 @@ unsigned int LEVEL_1_DATA[] = {
     19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19,
     19, 0, 0, 0, 14, 15, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19,
     19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19,
-    19, 0, 0, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19,
-    19, 2, 2, 2, 2, 2, 7, 8, 10, 11, 2, 2, 2, 2, 2, 2, 2, 2, 2, 19,
+    19, 0, 0, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 1, 3, 0, 0, 19,
+    19, 2, 2, 2, 2, 2, 7, 8, 10, 11, 2, 2, 2, 2, 7, 8, 10, 11, 2, 19,
     19, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 19
     
 };
@@ -247,6 +248,7 @@ void initialise()
     GLuint vulture_texture_id = load_texture(VULTURESHEET_FILEPATH);
     GLuint fox_texture_id = load_texture(FOXSHEET_FILEPATH);
     GLuint hunter_texture_id = load_texture(HUNTERSHEET_FILEPATH);
+    GLuint bullet_texture_id = load_texture(BULLETSHEET_FILEPATH);
     
     // ----- VULTURE ----- //
     g_game_state.enemies[0] = Entity(vulture_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, FLYER, IDLE);
@@ -261,8 +263,12 @@ void initialise()
 //    g_game_state.enemies[1].set_scale(glm::vec3(968/332.f, 1.0f, 0.0f));
 
     // ----- HUNTER ----- //
-    g_game_state.enemies[2] = Entity(hunter_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, WALKER, IDLE);
-    g_game_state.enemies[2].set_position(glm::vec3(0.0f, -0.0f, 0.0f));
+    g_game_state.enemies[2] = Entity(hunter_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, SHOOTER, IDLE);
+    g_game_state.enemies[2].set_position(glm::vec3(15.5f, -4.0f, 0.0f));
+    
+    // ----- BULLET ----- //
+    g_game_state.enemies[3] = Entity(bullet_texture_id, 2.0f, 0.3f, 0.3f, ENEMY, WALKER, IDLE);
+    g_game_state.enemies[3].set_position(glm::vec3(15.5f, -4.0f, 0.0f));
 
 
     // ----- AUDIO STUFF ----- //
