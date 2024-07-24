@@ -60,6 +60,11 @@ private:
     bool m_collided_bottom = false;
     bool m_collided_left   = false;
     bool m_collided_right  = false;
+    
+    bool m_map_collided_top    = false;
+    bool m_map_collided_bottom = false;
+    bool m_map_collided_left   = false;
+    bool m_map_collided_right  = false;
 
 public:
     // ————— STATIC VARIABLES ————— //
@@ -124,6 +129,10 @@ public:
     bool      const get_collided_right() const { return m_collided_right; }
     bool      const get_collided_left() const { return m_collided_left; }
     int       const get_enemy_count() const { return m_enemy_count; }
+    bool      const get_map_collided_top() const { return m_map_collided_top; }
+    bool      const get_map_collided_bottom() const { return m_map_collided_bottom; }
+    bool      const get_map_collided_right() const { return m_map_collided_right; }
+    bool      const get_map_collided_left() const { return m_map_collided_left; }
     
     void activate()   { m_is_active = true;  };
     void deactivate() { m_is_active = false; };

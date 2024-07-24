@@ -308,7 +308,7 @@ void process_input()
 
             case SDLK_SPACE:
                 // Jump
-                if (g_game_state.player->get_collided_bottom())
+                if (g_game_state.player->get_map_collided_bottom())
                 {
                     LOG("jumping\n");
                     g_game_state.player->jump();
