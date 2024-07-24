@@ -81,10 +81,8 @@ HUNTERSHEET_FILEPATH[] = "assets/hunter_static.png",
 BULLETSHEET_FILEPATH[] = "assets/bullet.png",
 FONTSHEET_FILEPATH[] = "assets/font1.png";
 
-constexpr char BGM_FILEPATH[] = "assets/dooblydoo.mp3",
-SFX_FILEPATH[] = "assets/bounce.wav";
-
-
+constexpr char BGM_FILEPATH[] = "assets/theSnowQueen.mp3",
+SFX_FILEPATH[] = "assets/snowWalk.mp3";
 
 //constexpr float PLATFORM_OFFSET = 5.0f;
 
@@ -131,33 +129,6 @@ void render();
 void shutdown();
 
 // ----- GENERAL FUNCTIONS ----- //
-//GLuint load_texture(const char* filepath)
-//{
-//    int width, height, number_of_components;
-//    unsigned char* image = stbi_load(filepath, &width, &height, &number_of_components, STBI_rgb_alpha);
-//
-//    if (image == NULL)
-//    {
-//        LOG("Unable to load image. Make sure the path is correct.");
-//        assert(false);
-//    }
-//
-//    GLuint textureID;
-//    glGenTextures(NUMBER_OF_TEXTURES, &textureID);
-//    glBindTexture(GL_TEXTURE_2D, textureID);
-//    glTexImage2D(GL_TEXTURE_2D, LEVEL_OF_DETAIL, GL_RGBA, width, height, TEXTURE_BORDER, GL_RGBA, GL_UNSIGNED_BYTE, image);
-//
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-//
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-//
-//    stbi_image_free(image);
-//
-//    return textureID;
-//}
-
 void initialise()
 {
     // ----- GENERAL STUFF ----- //
@@ -264,13 +235,13 @@ void initialise()
 
 
     // ----- AUDIO STUFF ----- //
-//    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
-//
-//    g_game_state.bgm = Mix_LoadMUS(BGM_FILEPATH);
-//    Mix_PlayMusic(g_game_state.bgm, -1);
-//    Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
-//
-//    g_game_state.jump_sfx = Mix_LoadWAV(SFX_FILEPATH);
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
+
+    g_game_state.bgm = Mix_LoadMUS(BGM_FILEPATH);
+    Mix_PlayMusic(g_game_state.bgm, -1);
+    Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
+
+    g_game_state.jump_sfx = Mix_LoadWAV(SFX_FILEPATH);
     
     // ----- FONT -----//
     g_font_texture_id = Utility::load_texture(FONTSHEET_FILEPATH);
@@ -306,7 +277,7 @@ void process_input()
                 if (g_game_state.player->get_map_collided_bottom())
                 {
                     g_game_state.player->jump();
-//                    Mix_PlayChannel(-1, g_game_state.jump_sfx, 0);
+                    Mix_PlayChannel(-1, g_game_state.jump_sfx, 0);
                 }
                 break;
 
@@ -326,8 +297,6 @@ void process_input()
 
     if (glm::length(g_game_state.player->get_movement()) > 1.0f)
         g_game_state.player->normalise_movement();
-
-
 }
 
 void update()
@@ -353,7 +322,6 @@ void update()
             for (int i = 0; i < ENEMY_COUNT; i++) {
                 // deactivate bullet if shooter is dead
                 Entity *current_enemy = &g_game_state.enemies[i];
-                std::cout << current_enemy->get_ai_type() << ": " << current_enemy->get_activation_status() << std::endl;
                 if (current_enemy->get_entity_type() == ENEMY && current_enemy->get_ai_type() == SHOOTER && !current_enemy->get_activation_status()) {
                     g_shooter_is_active = false;
                 }
@@ -428,7 +396,6 @@ void shutdown()
 {
     SDL_Quit();
 
-//    delete[] g_game_state.platforms;
     delete[] g_game_state.enemies;
     delete    g_game_state.player;
     delete    g_game_state.map;
