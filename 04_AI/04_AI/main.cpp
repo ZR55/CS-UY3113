@@ -119,6 +119,7 @@ unsigned int LEVEL_1_DATA[] = {
 GLuint g_font_texture_id;
 
 bool g_shooter_is_active = true;
+int g_current_enemy_count;
 
 float g_message_x = 0.0f,
 g_message_y = 0.0f;
@@ -347,20 +348,21 @@ void update()
         while (delta_time >= FIXED_TIMESTEP)
         {
             g_game_state.player->update(FIXED_TIMESTEP, g_game_state.player, g_game_state.enemies, ENEMY_COUNT, g_game_state.map);
-
+            g_current_enemy_count = g_game_state.player->get_enemy_count();
 
             for (int i = 0; i < ENEMY_COUNT; i++) {
                 // deactivate bullet if shooter is dead
-                Entity current_enemy = g_game_state.enemies[i];
-                std::cout << current_enemy.get_ai_type() << ": " << current_enemy.get_activation_status() << std::endl;
-                if (current_enemy.get_entity_type() == ENEMY && current_enemy.get_ai_type() == SHOOTER && !current_enemy.get_activation_status()) {
+                Entity *current_enemy = &g_game_state.enemies[i];
+                std::cout << current_enemy->get_ai_type() << ": " << current_enemy->get_activation_status() << std::endl;
+                if (current_enemy->get_entity_type() == ENEMY && current_enemy->get_ai_type() == SHOOTER && !current_enemy->get_activation_status()) {
                     g_shooter_is_active = false;
                 }
-                if (current_enemy.get_entity_type() == ENEMY && current_enemy.get_ai_type() == BULLET && !g_shooter_is_active) {
-                    current_enemy.deactivate();
+                if (current_enemy->get_entity_type() == ENEMY && current_enemy->get_ai_type() == BULLET && !g_shooter_is_active) {
+                    current_enemy->deactivate();
+                    g_current_enemy_count--;
                 }
                 // normal update for enemies
-                current_enemy.update(FIXED_TIMESTEP,
+                current_enemy->update(FIXED_TIMESTEP,
                     g_game_state.player,
                     NULL, NULL,
                     g_game_state.map);
@@ -370,7 +372,7 @@ void update()
             if (!g_game_state.player->get_activation_status()) g_game_result = LOSE;
             
             // check for win
-            if (g_game_state.player->get_enemy_count() == 0) g_game_result = WIN;
+            if (g_current_enemy_count == 0) g_game_result = WIN;
 
 
             delta_time -= FIXED_TIMESTEP;
