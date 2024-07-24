@@ -15,9 +15,10 @@
 #define FIXED_TIMESTEP 0.0166666f
 #define PLATFORM_COUNT 11
 #define ENEMY_COUNT 3
-#define LEVEL1_WIDTH 15
+#define LEVEL1_WIDTH 20
 #define LEVEL1_HEIGHT 8
 #define LEFT_EDGE 5.0f
+#define RIGHT_EDGE 14.0f
 
 #ifdef _WINDOWS
 #include <GL/glew.h>
@@ -101,14 +102,14 @@ float g_accumulator = 0.0f;
 AppStatus g_app_status = RUNNING;
 
 unsigned int LEVEL_1_DATA[] = {
-    19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    19, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-    19, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5
+    19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19,
+    19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19,
+    19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19,
+    19, 0, 0, 0, 14, 15, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19,
+    19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19,
+    19, 0, 0, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19,
+    19, 2, 2, 2, 2, 2, 7, 8, 10, 11, 2, 2, 2, 2, 2, 2, 2, 2, 2, 19,
+    19, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 19
     
 };
 
@@ -362,10 +363,14 @@ void update()
     // Prevent the camera from showing anything outside of the "edge" of the level
     g_view_matrix = glm::mat4(1.0f);
     
-    if (g_game_state.player->get_position().x > LEFT_EDGE) {
+//    std::cout << "player x is: " << g_game_state.player->get_position().x << std::endl;
+    if (g_game_state.player->get_position().x > LEFT_EDGE && g_game_state.player->get_position().x < RIGHT_EDGE) {
         g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-g_game_state.player->get_position().x, 3, 0));
-    } else {
+    } else if (g_game_state.player->get_position().x <= LEFT_EDGE){
         g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-LEFT_EDGE, 3, 0));
+    } else {
+//        std::cout << "out of right edge\n";
+        g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-RIGHT_EDGE, 3, 0));
     }
 //    g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-g_game_state.player->get_position().x, 0.0f, 0.0f));
 }
