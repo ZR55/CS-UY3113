@@ -69,8 +69,8 @@ F_SHADER_PATH[] = "shaders/fragment_textured.glsl";
 
 constexpr float MILLISECONDS_IN_SECOND = 1000.0;
 
-//constexpr char PLAYERSHEET_FILEPATH[] = "assets/rabbit.png",
-constexpr char PLAYERSHEET_FILEPATH[] = "assets/george_0.png",
+constexpr char PLAYERSHEET_FILEPATH[] = "assets/rabbit.png",
+//constexpr char PLAYERSHEET_FILEPATH[] = "assets/george_0.png",
 TILESET_FILEPATH[] = "assets/winterTileSheet1.png",
 //TILESET_FILEPATH[] = "assets/tileset.png",
 VULTURESHEET_FILEPATH[] = "assets/vulture_static.png",
@@ -84,7 +84,7 @@ constexpr int NUMBER_OF_TEXTURES = 1;
 constexpr GLint LEVEL_OF_DETAIL = 0;
 constexpr GLint TEXTURE_BORDER = 0;
 
-constexpr float PLATFORM_OFFSET = 5.0f;
+//constexpr float PLATFORM_OFFSET = 5.0f;
 
 // ----- VARIABLES ----- //
 GameState g_game_state;
@@ -204,20 +204,20 @@ void initialise()
     // ------ PLAYER ------//
     GLuint player_texture_id = load_texture(PLAYERSHEET_FILEPATH);
 
-//    int player_walking_animation[4][4] =
-//    {
-//    { 4, 5, 6, 7 },  // for player to move to the left,
-//    { 12, 13, 14, 15 }, // for player to move to the right,
-//    { 0, 1, 2, 3 }, // for player to move upwards,
-//    { 8, 9, 10, 11 }   // for player to move downwards
-//    };
     int player_walking_animation[4][4] =
     {
-        { 1, 5, 9, 13 },  // for George to move to the left,
-        { 3, 7, 11, 15 }, // for George to move to the right,
-        { 2, 6, 10, 14 }, // for George to move upwards,
-        { 0, 4, 8, 12 }   // for George to move downwards
+    { 4, 5, 6, 7 },  // for player to move to the left,
+    { 12, 13, 14, 15 }, // for player to move to the right,
+    { 0, 1, 2, 3 }, // for player to move upwards,
+    { 8, 9, 10, 11 }   // for player to move downwards
     };
+//    int player_walking_animation[4][4] =
+//    {
+//        { 1, 5, 9, 13 },  // for George to move to the left,
+//        { 3, 7, 11, 15 }, // for George to move to the right,
+//        { 2, 6, 10, 14 }, // for George to move upwards,
+//        { 0, 4, 8, 12 }   // for George to move downwards
+//    };
 
 
     glm::vec3 gravity = glm::vec3(0.0f, -4.905f, 0.0f);
@@ -237,10 +237,10 @@ void initialise()
         1.0f,                       // height
         PLAYER
     );
-    g_game_state.player->set_position(glm::vec3(6.5f, 0.0f, 0.0f));
-
+    g_game_state.player->set_position(glm::vec3(6.5f, -5.0f, 0.0f));
     // Jumping
     g_game_state.player->set_jumping_power(4.0f);
+    g_game_state.player->set_enemy_count(ENEMY_COUNT);
 
     g_game_state.enemies = new Entity[ENEMY_COUNT];
     GLuint vulture_texture_id = load_texture(VULTURESHEET_FILEPATH);
@@ -249,14 +249,14 @@ void initialise()
     
     // ----- VULTURE ----- //
     g_game_state.enemies[0] = Entity(vulture_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, WALKER, IDLE);
-    g_game_state.enemies[0].set_position(glm::vec3(4.0f, 2.5f, 0.0f));
-    g_game_state.enemies[0].set_movement(glm::vec3(-1.0f,0.f,0.f));
+    g_game_state.enemies[0].set_position(glm::vec3(8.0f, -2.5f, 0.0f));
+//    g_game_state.enemies[0].set_movement(glm::vec3(-1.0f,0.f,0.f));
 
     // ----- FOX ----- //
 
     g_game_state.enemies[1] = Entity(fox_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, GUARD, IDLE);
-    g_game_state.enemies[1].set_position(glm::vec3(2.0f, -2.0f, 0.0f));
-    g_game_state.enemies[1].set_acceleration(gravity);
+    g_game_state.enemies[1].set_position(glm::vec3(2.0f, -5.0f, 0.0f));
+//    g_game_state.enemies[1].set_acceleration(gravity);
 //    g_game_state.enemies[1].set_scale(glm::vec3(968/332.f, 1.0f, 0.0f));
 
     // ----- HUNTER ----- //

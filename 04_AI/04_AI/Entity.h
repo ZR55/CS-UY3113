@@ -5,7 +5,7 @@
 #include "glm/glm.hpp"
 #include "ShaderProgram.h"
 enum EntityType { PLATFORM, PLAYER, ENEMY  };
-enum AIType     { WALKER, GUARD            };
+enum AIType     { WALKER, GUARD, FLYER, SHOOTER };
 enum AIState    { WALKING, IDLE, ATTACKING };
 
 
@@ -51,6 +51,7 @@ private:
     float m_width = 1.0f,
           m_height = 1.0f;
     // ————— COLLISIONS ————— //
+    int m_enemy_count = 0;
     bool m_collided_top    = false;
     bool m_collided_bottom = false;
     bool m_collided_left   = false;
@@ -58,7 +59,8 @@ private:
 
 public:
     // ————— STATIC VARIABLES ————— //
-    static constexpr int SECONDS_PER_FRAME = 4;
+    static constexpr int SECONDS_PER_FRAME = 6;
+    static constexpr int ANIMATION_ARRAY_LENGTH = 4;
 
     // ————— METHODS ————— //
     Entity();
@@ -115,6 +117,7 @@ public:
     bool      const get_collided_bottom() const { return m_collided_bottom; }
     bool      const get_collided_right() const { return m_collided_right; }
     bool      const get_collided_left() const { return m_collided_left; }
+    int       const get_enemy_count() const { return m_enemy_count; }
     
     void activate()   { m_is_active = true;  };
     void deactivate() { m_is_active = false; };
@@ -137,6 +140,7 @@ public:
     void const set_jumping_power(float new_jumping_power) { m_jumping_power = new_jumping_power;}
     void const set_width(float new_width) {m_width = new_width; }
     void const set_height(float new_height) {m_height = new_height; }
+    void const set_enemy_count(int new_enemy_count) {m_enemy_count = new_enemy_count;}
 
     // Setter for m_walking
     void set_walking(int walking[4][4])

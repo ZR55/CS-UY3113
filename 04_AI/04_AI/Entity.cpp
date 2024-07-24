@@ -77,8 +77,8 @@ Entity::Entity()
     m_texture_id(0), m_velocity(0.0f), m_acceleration(0.0f), m_width(0.0f), m_height(0.0f)
 {
     // Initialize m_walking with zeros or any default value
-    for (int i = 0; i < SECONDS_PER_FRAME; ++i)
-        for (int j = 0; j < SECONDS_PER_FRAME; ++j) m_walking[i][j] = 0;
+    for (int i = 0; i < ANIMATION_ARRAY_LENGTH; ++i)
+        for (int j = 0; j < ANIMATION_ARRAY_LENGTH; ++j) m_walking[i][j] = 0;
 }
 
 // Parameterized constructor
@@ -104,8 +104,8 @@ Entity::Entity(GLuint texture_id, float speed,  float width, float height, Entit
     m_texture_id(texture_id), m_velocity(0.0f), m_acceleration(0.0f), m_width(width), m_height(height),m_entity_type(EntityType)
 {
     // Initialize m_walking with zeros or any default value
-    for (int i = 0; i < SECONDS_PER_FRAME; ++i)
-        for (int j = 0; j < SECONDS_PER_FRAME; ++j) m_walking[i][j] = 0;
+    for (int i = 0; i < ANIMATION_ARRAY_LENGTH; ++i)
+        for (int j = 0; j < ANIMATION_ARRAY_LENGTH; ++j) m_walking[i][j] = 0;
 }
 
 
@@ -115,8 +115,8 @@ m_animation_rows(0), m_animation_indices(nullptr), m_animation_time(0.0f),
 m_texture_id(texture_id), m_velocity(0.0f), m_acceleration(0.0f), m_width(width), m_height(height),m_entity_type(EntityType), m_ai_type(AIType), m_ai_state(AIState)
 {
 // Initialize m_walking with zeros or any default value
-for (int i = 0; i < SECONDS_PER_FRAME; ++i)
-    for (int j = 0; j < SECONDS_PER_FRAME; ++j) m_walking[i][j] = 0;
+for (int i = 0; i < ANIMATION_ARRAY_LENGTH; ++i)
+    for (int j = 0; j < ANIMATION_ARRAY_LENGTH; ++j) m_walking[i][j] = 0;
 }
 
 Entity::~Entity() { }
@@ -186,6 +186,7 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                     m_collided_top  = true;
                     
                     // TODO: player dies
+                    m_is_active = false;
                 } else if (m_velocity.y < 0)
                 {
                     m_position.y      += y_overlap;
@@ -197,6 +198,13 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                     // deactivate the enemy and remove it from array
                     if (collidable_entity->m_entity_type == ENEMY) {
                         collidable_entity->deactivate();
+                        m_enemy_count--;
+//                        // remove it from the array
+//                        for (int j = i; i < collidable_entity_count; i++) {
+//                            collidable_entities[j] = collidable_entities[j+1];
+//                        }
+//                        collidable_entity_count--;
+//                        std::cout << "killed\n" << "collidable count: " << collidable_entity_count << std::endl;
                     }
                 }
             }
@@ -226,7 +234,7 @@ void const Entity::check_collision_x(Entity *collidable_entities, int collidable
                     m_collided_right  = true;
                     
                     // TODO: player dies
-                    
+                    m_is_active = false;
                 } else if (m_velocity.x < 0)
                 {
                     m_position.x    += x_overlap;
@@ -236,6 +244,7 @@ void const Entity::check_collision_x(Entity *collidable_entities, int collidable
                     m_collided_left  = true;
                     
                     // TODO: player dies
+                    m_is_active = false;
                 }
             }
         }
@@ -327,12 +336,13 @@ void const Entity::check_collision_x(Map *map)
 void Entity::update(float delta_time, Entity *player, Entity *collidable_entities, int collidable_entity_count, Map *map)
 {
 
- 
+    if (!m_is_active) return;
+
     m_collided_top    = false;
     m_collided_bottom = false;
     m_collided_left   = false;
     m_collided_right  = false;
-    if (!m_is_active) return;
+
     if (m_entity_type == ENEMY) ai_activate(player);
     
     if (m_animation_indices != NULL)
@@ -365,6 +375,8 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
     m_position.x += m_velocity.x * delta_time;
     check_collision_x(collidable_entities, collidable_entity_count);
     check_collision_x(map);
+    
+//    std::cout << "collidable count: " << collidable_entity_count << std::endl;
     
     if (m_is_jumping)
     {
