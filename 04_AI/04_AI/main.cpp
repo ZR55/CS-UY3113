@@ -190,19 +190,6 @@ void initialise()
     GLuint map_texture_id = load_texture(TILESET_FILEPATH);
     g_game_state.map = new Map(LEVEL1_WIDTH, LEVEL1_HEIGHT, LEVEL_1_DATA, map_texture_id, 1.f, 5, 4);
 
-    // ----- PLATFORM ----- //
-//    GLuint platform_texture_id = load_texture(TILESET_FILEPATH);
-//
-//    g_game_state.platforms = new Entity[PLATFORM_COUNT];
-//
-//    for (int i = 0; i < PLATFORM_COUNT; i++)
-//    {
-//        g_game_state.platforms[i] = Entity(platform_texture_id, 0.0f, 0.4f, 1.0f, PLATFORM);
-//        g_game_state.platforms[i].set_position(glm::vec3(i - PLATFORM_OFFSET, -3.0f, 0.0f));
-//        g_game_state.platforms[i].update(0.0f, NULL, NULL, 0);
-//    }
-
-
     // ------ PLAYER ------//
     GLuint player_texture_id = load_texture(PLAYERSHEET_FILEPATH);
 
@@ -253,14 +240,11 @@ void initialise()
     // ----- VULTURE ----- //
     g_game_state.enemies[0] = Entity(vulture_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, FLYER, IDLE);
     g_game_state.enemies[0].set_position(glm::vec3(8.0f, -0.5f, 0.0f));
-//    g_game_state.enemies[0].set_movement(glm::vec3(-1.0f,0.f,0.f));
 
     // ----- FOX ----- //
 
     g_game_state.enemies[1] = Entity(fox_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, GUARD, IDLE);
     g_game_state.enemies[1].set_position(glm::vec3(2.0f, -5.0f, 0.0f));
-//    g_game_state.enemies[1].set_acceleration(gravity);
-//    g_game_state.enemies[1].set_scale(glm::vec3(968/332.f, 1.0f, 0.0f));
 
     // ----- HUNTER ----- //
     g_game_state.enemies[2] = Entity(hunter_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, SHOOTER, IDLE);
@@ -310,7 +294,6 @@ void process_input()
                 // Jump
                 if (g_game_state.player->get_map_collided_bottom())
                 {
-                    LOG("jumping\n");
                     g_game_state.player->jump();
 //                    Mix_PlayChannel(-1, g_game_state.jump_sfx, 0);
                 }
@@ -370,16 +353,13 @@ void update()
     // Prevent the camera from showing anything outside of the "edge" of the level
     g_view_matrix = glm::mat4(1.0f);
     
-//    std::cout << "player x is: " << g_game_state.player->get_position().x << std::endl;
     if (g_game_state.player->get_position().x > LEFT_EDGE && g_game_state.player->get_position().x < RIGHT_EDGE) {
         g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-g_game_state.player->get_position().x, 3, 0));
     } else if (g_game_state.player->get_position().x <= LEFT_EDGE){
         g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-LEFT_EDGE, 3, 0));
     } else {
-//        std::cout << "out of right edge\n";
         g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-RIGHT_EDGE, 3, 0));
     }
-//    g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-g_game_state.player->get_position().x, 0.0f, 0.0f));
 }
 
 void render()
@@ -390,8 +370,6 @@ void render()
 
     g_game_state.player->render(&g_shader_program);
 
-//    for (int i = 0; i < PLATFORM_COUNT; i++)
-//        g_game_state.platforms[i].render(&g_shader_program);
     for (int i = 0; i < ENEMY_COUNT; i++)
         g_game_state.enemies[i].render(&g_shader_program);
     g_game_state.map->render(&g_shader_program);
