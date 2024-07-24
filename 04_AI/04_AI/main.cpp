@@ -17,8 +17,7 @@
 #define ENEMY_COUNT 4
 #define LEVEL1_WIDTH 20
 #define LEVEL1_HEIGHT 8
-#define LEFT_EDGE 5.0f
-#define RIGHT_EDGE 14.0f
+
 
 #ifdef _WINDOWS
 #include <GL/glew.h>
@@ -251,7 +250,7 @@ void initialise()
     g_game_state.enemies[2].set_position(glm::vec3(15.5f, -4.0f, 0.0f));
     
     // ----- BULLET ----- //
-    g_game_state.enemies[3] = Entity(bullet_texture_id, 2.0f, 0.3f, 0.3f, ENEMY, WALKER, IDLE);
+    g_game_state.enemies[3] = Entity(bullet_texture_id, 2.0f, 0.3f, 0.3f, ENEMY, BULLET, IDLE);
     g_game_state.enemies[3].set_position(glm::vec3(15.5f, -4.0f, 0.0f));
 
 

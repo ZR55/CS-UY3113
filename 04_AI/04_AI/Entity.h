@@ -95,7 +95,7 @@ public:
     void render(ShaderProgram* program);
 
     void ai_activate(Entity *player);
-    void ai_walk();
+    void ai_bullet();
     void ai_guard(Entity *player);
     void ai_fly();
     

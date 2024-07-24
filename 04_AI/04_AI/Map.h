@@ -13,6 +13,10 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "ShaderProgram.h"
 
+
+constexpr float LEFT_EDGE = 5.0f;
+constexpr float RIGHT_EDGE = 14.0f;
+
 class Map
 {
 private:

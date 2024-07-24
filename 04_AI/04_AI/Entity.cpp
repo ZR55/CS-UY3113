@@ -27,8 +27,8 @@ void Entity::ai_activate(Entity *player)
 {
     switch (m_ai_type)
     {
-        case WALKER:
-            ai_walk();
+        case BULLET:
+            ai_bullet();
             break;
             
         case GUARD:
@@ -43,11 +43,12 @@ void Entity::ai_activate(Entity *player)
     }
 }
 
-void Entity::ai_walk()
+void Entity::ai_bullet()
 {
     m_movement = glm::vec3(-1.0f, 0.0f, 0.0f);
     
-    // switch direction once it hits object
+    // shoot again once it hits the edge
+    if (m_position.x <= LEFT_EDGE - 4.0f) m_position = glm::vec3(15.5f, -4.0f, 0.0f);
 }
 
 void Entity::ai_guard(Entity *player)
