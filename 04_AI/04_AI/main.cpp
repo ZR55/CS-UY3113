@@ -16,7 +16,8 @@
 #define PLATFORM_COUNT 11
 #define ENEMY_COUNT 3
 #define LEVEL1_WIDTH 15
-#define LEVEL1_HEIGHT 5
+#define LEVEL1_HEIGHT 8
+#define LEFT_EDGE 5.0f
 
 #ifdef _WINDOWS
 #include <GL/glew.h>
@@ -101,7 +102,10 @@ AppStatus g_app_status = RUNNING;
 
 unsigned int LEVEL_1_DATA[] = {
     19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     19, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
     19, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5
@@ -233,7 +237,7 @@ void initialise()
         1.0f,                       // height
         PLAYER
     );
-    g_game_state.player->set_position(glm::vec3(6.5f, -0.5f, 0.0f));
+    g_game_state.player->set_position(glm::vec3(6.5f, 0.0f, 0.0f));
 
     // Jumping
     g_game_state.player->set_jumping_power(4.0f);
@@ -355,8 +359,15 @@ void update()
 
     g_accumulator = delta_time;
     
+    // Prevent the camera from showing anything outside of the "edge" of the level
     g_view_matrix = glm::mat4(1.0f);
-    g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-g_game_state.player->get_position().x, 0.0f, 0.0f));
+    
+    if (g_game_state.player->get_position().x > LEFT_EDGE) {
+        g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-g_game_state.player->get_position().x, 3, 0));
+    } else {
+        g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-LEFT_EDGE, 3, 0));
+    }
+//    g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-g_game_state.player->get_position().x, 0.0f, 0.0f));
 }
 
 void render()
