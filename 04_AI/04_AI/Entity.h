@@ -26,13 +26,17 @@ private:
     glm::vec3 m_movement;
     glm::vec3 m_position;
     glm::vec3 m_scale;
+//    glm::vec3 m_rotation;
+//    glm::vec3 m_rotation_direction;
+    glm::vec3 m_rotation_center;
     glm::vec3 m_velocity;
     glm::vec3 m_acceleration;
 
     glm::mat4 m_model_matrix;
 
     float     m_speed,
-              m_jumping_power;
+              m_jumping_power,
+    m_rotation_theta = 0.0f;
     
     bool m_is_jumping;
 
@@ -61,6 +65,7 @@ public:
     // ————— STATIC VARIABLES ————— //
     static constexpr int SECONDS_PER_FRAME = 6;
     static constexpr int ANIMATION_ARRAY_LENGTH = 4;
+    static constexpr float ROT_INCREMENT = 1.0f;
 
     // ————— METHODS ————— //
     Entity();
@@ -87,6 +92,7 @@ public:
     void ai_activate(Entity *player);
     void ai_walk();
     void ai_guard(Entity *player);
+    void ai_fly();
     
     void normalise_movement() { m_movement = glm::normalize(m_movement); }
 
@@ -125,7 +131,7 @@ public:
     void const set_entity_type(EntityType new_entity_type)  { m_entity_type = new_entity_type;};
     void const set_ai_type(AIType new_ai_type){ m_ai_type = new_ai_type;};
     void const set_ai_state(AIState new_state){ m_ai_state = new_state;};
-    void const set_position(glm::vec3 new_position) { m_position = new_position; }
+    void const set_position(glm::vec3 new_position) { m_position = new_position; m_rotation_center = new_position; }
     void const set_velocity(glm::vec3 new_velocity) { m_velocity = new_velocity; }
     void const set_acceleration(glm::vec3 new_acceleration) { m_acceleration = new_acceleration; }
     void const set_movement(glm::vec3 new_movement) { m_movement = new_movement; }

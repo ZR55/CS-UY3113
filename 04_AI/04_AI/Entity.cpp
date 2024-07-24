@@ -35,6 +35,9 @@ void Entity::ai_activate(Entity *player)
             ai_guard(player);
             break;
             
+        case FLYER:
+            ai_fly();
+            
         default:
             break;
     }
@@ -69,6 +72,13 @@ void Entity::ai_guard(Entity *player)
             break;
     }
 }
+
+void Entity::ai_fly() {
+//    m_rotation_direction = glm::vec3(0.0f, 0.0f, -1.0f);
+//    m_rotation_theta_sin = m_rotation_theta_cos;
+    m_rotation_theta++;
+}
+
 // Default constructor
 Entity::Entity()
     : m_position(0.0f), m_movement(0.0f), m_scale(1.0f, 1.0f, 0.0f), m_model_matrix(1.0f),
@@ -368,13 +378,17 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
     m_velocity.x = m_movement.x * m_speed;
     m_velocity += m_acceleration * delta_time;
     
-    m_position.y += m_velocity.y * delta_time;
+    if (m_ai_type == FLYER) m_position.y = m_rotation_center.y + glm::sin(m_rotation_theta * delta_time);
+    else m_position.y += m_velocity.y * delta_time;
     check_collision_y(collidable_entities, collidable_entity_count);
     check_collision_y(map);
     
-    m_position.x += m_velocity.x * delta_time;
+    if (m_ai_type == FLYER) m_position.x = m_rotation_center.x + glm::cos(m_rotation_theta * delta_time);
+    else m_position.x += m_velocity.x * delta_time;
     check_collision_x(collidable_entities, collidable_entity_count);
     check_collision_x(map);
+//    std::cout << "m_rotation_theta_sin is: " << glm::sin(m_rotation_theta_sin) << std::endl;
+//    std::cout << "cos is: " << glm::cos(m_rotation_theta_cos) << std::endl;
     
 //    std::cout << "collidable count: " << collidable_entity_count << std::endl;
     
@@ -386,6 +400,7 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
     
     m_model_matrix = glm::mat4(1.0f);
     m_model_matrix = glm::translate(m_model_matrix, m_position);
+//    m_model_matrix = glm::rotate(m_model_matrix, m_rotation, m_rotation_direction);
     m_model_matrix = glm::scale(m_model_matrix, m_scale);
 }
 
