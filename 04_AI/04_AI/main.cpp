@@ -9,7 +9,7 @@
 **/
 
 #define GL_SILENCE_DEPRECATION
-#define STB_IMAGE_IMPLEMENTATION
+//#define STB_IMAGE_IMPLEMENTATION
 #define LOG(argument) std::cout << argument << '\n'
 #define GL_GLEXT_PROTOTYPES 1
 #define FIXED_TIMESTEP 0.0166666f
@@ -35,6 +35,7 @@
 #include <vector>
 #include "Entity.h"
 #include "Map.h"
+#include "Utility.h"
 
 // ----- STRUCTS AND ENUMS ----- //
 struct GameState
@@ -49,6 +50,7 @@ struct GameState
 };
 
 enum AppStatus { RUNNING, TERMINATED };
+enum GameResult { NONE, WIN, LOSE };
 
 // ----- CONSTANTS ----- //
 constexpr int WINDOW_WIDTH = 640,
@@ -76,19 +78,19 @@ TILESET_FILEPATH[] = "assets/winterTileSheet1.png",
 VULTURESHEET_FILEPATH[] = "assets/vulture_static.png",
 FOXSHEET_FILEPATH[] = "assets/fox_static.png",
 HUNTERSHEET_FILEPATH[] = "assets/hunter_static.png",
-BULLETSHEET_FILEPATH[] = "assets/bullet.png";
+BULLETSHEET_FILEPATH[] = "assets/bullet.png",
+FONTSHEET_FILEPATH[] = "assets/font1.png";
 
 constexpr char BGM_FILEPATH[] = "assets/dooblydoo.mp3",
 SFX_FILEPATH[] = "assets/bounce.wav";
 
-constexpr int NUMBER_OF_TEXTURES = 1;
-constexpr GLint LEVEL_OF_DETAIL = 0;
-constexpr GLint TEXTURE_BORDER = 0;
+
 
 //constexpr float PLATFORM_OFFSET = 5.0f;
 
 // ----- VARIABLES ----- //
 GameState g_game_state;
+GameResult g_game_result = NONE;
 
 SDL_Window* g_display_window;
 bool g_game_is_running = true;
@@ -113,7 +115,8 @@ unsigned int LEVEL_1_DATA[] = {
     
 };
 
-GLuint load_texture(const char* filepath);
+//GLuint load_texture(const char* filepath);
+GLuint g_font_texture_id;
 
 void initialise();
 void process_input();
@@ -122,32 +125,32 @@ void render();
 void shutdown();
 
 // ----- GENERAL FUNCTIONS ----- //
-GLuint load_texture(const char* filepath)
-{
-    int width, height, number_of_components;
-    unsigned char* image = stbi_load(filepath, &width, &height, &number_of_components, STBI_rgb_alpha);
-
-    if (image == NULL)
-    {
-        LOG("Unable to load image. Make sure the path is correct.");
-        assert(false);
-    }
-
-    GLuint textureID;
-    glGenTextures(NUMBER_OF_TEXTURES, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexImage2D(GL_TEXTURE_2D, LEVEL_OF_DETAIL, GL_RGBA, width, height, TEXTURE_BORDER, GL_RGBA, GL_UNSIGNED_BYTE, image);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    stbi_image_free(image);
-
-    return textureID;
-}
+//GLuint load_texture(const char* filepath)
+//{
+//    int width, height, number_of_components;
+//    unsigned char* image = stbi_load(filepath, &width, &height, &number_of_components, STBI_rgb_alpha);
+//
+//    if (image == NULL)
+//    {
+//        LOG("Unable to load image. Make sure the path is correct.");
+//        assert(false);
+//    }
+//
+//    GLuint textureID;
+//    glGenTextures(NUMBER_OF_TEXTURES, &textureID);
+//    glBindTexture(GL_TEXTURE_2D, textureID);
+//    glTexImage2D(GL_TEXTURE_2D, LEVEL_OF_DETAIL, GL_RGBA, width, height, TEXTURE_BORDER, GL_RGBA, GL_UNSIGNED_BYTE, image);
+//
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+//
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+//
+//    stbi_image_free(image);
+//
+//    return textureID;
+//}
 
 void initialise()
 {
@@ -186,11 +189,11 @@ void initialise()
     glClearColor(BG_RED, BG_BLUE, BG_GREEN, BG_OPACITY);
     
     // ————— MAP SET-UP ————— //
-    GLuint map_texture_id = load_texture(TILESET_FILEPATH);
+    GLuint map_texture_id = Utility::load_texture(TILESET_FILEPATH);
     g_game_state.map = new Map(LEVEL1_WIDTH, LEVEL1_HEIGHT, LEVEL_1_DATA, map_texture_id, 1.f, 5, 4);
 
     // ------ PLAYER ------//
-    GLuint player_texture_id = load_texture(PLAYERSHEET_FILEPATH);
+    GLuint player_texture_id = Utility::load_texture(PLAYERSHEET_FILEPATH);
 
     int player_walking_animation[4][4] =
     {
@@ -231,10 +234,10 @@ void initialise()
     g_game_state.player->set_enemy_count(ENEMY_COUNT);
 
     g_game_state.enemies = new Entity[ENEMY_COUNT];
-    GLuint vulture_texture_id = load_texture(VULTURESHEET_FILEPATH);
-    GLuint fox_texture_id = load_texture(FOXSHEET_FILEPATH);
-    GLuint hunter_texture_id = load_texture(HUNTERSHEET_FILEPATH);
-    GLuint bullet_texture_id = load_texture(BULLETSHEET_FILEPATH);
+    GLuint vulture_texture_id = Utility::load_texture(VULTURESHEET_FILEPATH);
+    GLuint fox_texture_id = Utility::load_texture(FOXSHEET_FILEPATH);
+    GLuint hunter_texture_id = Utility::load_texture(HUNTERSHEET_FILEPATH);
+    GLuint bullet_texture_id = Utility::load_texture(BULLETSHEET_FILEPATH);
     
     // ----- VULTURE ----- //
     g_game_state.enemies[0] = Entity(vulture_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, FLYER, IDLE);
@@ -262,6 +265,9 @@ void initialise()
 //    Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
 //
 //    g_game_state.jump_sfx = Mix_LoadWAV(SFX_FILEPATH);
+    
+    // ----- FONT -----//
+    g_font_texture_id = Utility::load_texture(FONTSHEET_FILEPATH);
 
     // ----- GENERAL STUFF ----- //
     glEnable(GL_BLEND);
@@ -320,51 +326,62 @@ void process_input()
 
 void update()
 {
-    float ticks = (float)SDL_GetTicks() / MILLISECONDS_IN_SECOND;
-    float delta_time = ticks - g_previous_ticks;
-    g_previous_ticks = ticks;
+    if (g_game_result == NONE) {
+        float ticks = (float)SDL_GetTicks() / MILLISECONDS_IN_SECOND;
+        float delta_time = ticks - g_previous_ticks;
+        g_previous_ticks = ticks;
 
-    delta_time += g_accumulator;
+        delta_time += g_accumulator;
 
-    if (delta_time < FIXED_TIMESTEP)
-    {
-        g_accumulator = delta_time;
-        return;
-    }
-
-    while (delta_time >= FIXED_TIMESTEP)
-    {
-        g_game_state.player->update(FIXED_TIMESTEP, g_game_state.player, g_game_state.enemies, ENEMY_COUNT, g_game_state.map);
-
-        for (int i = 0; i < ENEMY_COUNT; i++) {
-            g_game_state.enemies[i].update(FIXED_TIMESTEP,
-                g_game_state.player,
-                NULL, NULL,
-                g_game_state.map);
+        if (delta_time < FIXED_TIMESTEP)
+        {
+            g_accumulator = delta_time;
+            return;
         }
 
+        while (delta_time >= FIXED_TIMESTEP)
+        {
+            g_game_state.player->update(FIXED_TIMESTEP, g_game_state.player, g_game_state.enemies, ENEMY_COUNT, g_game_state.map);
 
-        delta_time -= FIXED_TIMESTEP;
+            for (int i = 0; i < ENEMY_COUNT; i++) {
+                g_game_state.enemies[i].update(FIXED_TIMESTEP,
+                    g_game_state.player,
+                    NULL, NULL,
+                    g_game_state.map);
+            }
+            
+            // check for lose
+            if (!g_game_state.player->get_activation_status()) g_game_result = LOSE;
+            
+            // check for win
+            if (g_game_state.player->get_enemy_count() == 0) g_game_result = WIN;
+
+
+            delta_time -= FIXED_TIMESTEP;
+        }
+
+        g_accumulator = delta_time;
+        
+        // Prevent the camera from showing anything outside of the "edge" of the level
+        g_view_matrix = glm::mat4(1.0f);
+        
+        if (g_game_state.player->get_position().x > LEFT_EDGE && g_game_state.player->get_position().x < RIGHT_EDGE) {
+            g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-g_game_state.player->get_position().x, 3, 0));
+        } else if (g_game_state.player->get_position().x <= LEFT_EDGE){
+            g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-LEFT_EDGE, 3, 0));
+        } else {
+            g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-RIGHT_EDGE, 3, 0));
+        }
     }
 
-    g_accumulator = delta_time;
-    
-    // Prevent the camera from showing anything outside of the "edge" of the level
-    g_view_matrix = glm::mat4(1.0f);
-    
-    if (g_game_state.player->get_position().x > LEFT_EDGE && g_game_state.player->get_position().x < RIGHT_EDGE) {
-        g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-g_game_state.player->get_position().x, 3, 0));
-    } else if (g_game_state.player->get_position().x <= LEFT_EDGE){
-        g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-LEFT_EDGE, 3, 0));
-    } else {
-        g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-RIGHT_EDGE, 3, 0));
-    }
 }
 
 void render()
 {
-    g_shader_program.set_view_matrix(g_view_matrix);
+
     
+    g_shader_program.set_view_matrix(g_view_matrix);
+ 
     glClear(GL_COLOR_BUFFER_BIT);
 
     g_game_state.player->render(&g_shader_program);

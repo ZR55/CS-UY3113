@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3C01FE2A2C518C0B002F9620 /* Utility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C01FE282C518C0B002F9620 /* Utility.cpp */; };
 		3C3432B62C4F0016005D9F66 /* Map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C3432B42C4F0016005D9F66 /* Map.cpp */; };
 		3C3B41852C4DF01F00A234B3 /* ShaderProgram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C3B41812C4DF01F00A234B3 /* ShaderProgram.cpp */; };
 		3C3B41912C4DF67E00A234B3 /* shaders in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3C3B41802C4DF01F00A234B3 /* shaders */; };
@@ -35,6 +36,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3C01FE282C518C0B002F9620 /* Utility.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Utility.cpp; sourceTree = "<group>"; };
+		3C01FE292C518C0B002F9620 /* Utility.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utility.h; sourceTree = "<group>"; };
 		3C3432B42C4F0016005D9F66 /* Map.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Map.cpp; sourceTree = "<group>"; };
 		3C3432B52C4F0016005D9F66 /* Map.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Map.h; sourceTree = "<group>"; };
 		3C3B41762C4DEF3400A234B3 /* 04_AI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = 04_AI; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -101,6 +104,8 @@
 				3C500AB42C4EB1A50048C516 /* main.cpp */,
 				3C3432B42C4F0016005D9F66 /* Map.cpp */,
 				3C3432B52C4F0016005D9F66 /* Map.h */,
+				3C01FE282C518C0B002F9620 /* Utility.cpp */,
+				3C01FE292C518C0B002F9620 /* Utility.h */,
 			);
 			path = 04_AI;
 			sourceTree = "<group>";
@@ -176,6 +181,7 @@
 			files = (
 				3C3B41952C4DF7D900A234B3 /* Entity.cpp in Sources */,
 				3C3B41852C4DF01F00A234B3 /* ShaderProgram.cpp in Sources */,
+				3C01FE2A2C518C0B002F9620 /* Utility.cpp in Sources */,
 				3C3432B62C4F0016005D9F66 /* Map.cpp in Sources */,
 				3C500AB52C4EB1A50048C516 /* main.cpp in Sources */,
 			);

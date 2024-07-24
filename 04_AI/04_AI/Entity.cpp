@@ -380,11 +380,16 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
     check_collision_x(map);
     check_collision_x(collidable_entities, collidable_entity_count);
     
-    // check for collision
+    // check for lose
     // player dies
     if (m_entity_type == PLAYER) {
-        if (m_collided_top || m_collided_left || m_collided_right) m_is_active = false;
+        if (m_collided_top || m_collided_left || m_collided_right) {
+            deactivate();
+//            game_result = LOSE;
+        }
     }
+    // check for win
+//    if (m_enemy_count == 0) game_result = WIN;
     
     if (m_is_jumping)
     {

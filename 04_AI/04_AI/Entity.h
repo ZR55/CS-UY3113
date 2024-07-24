@@ -11,6 +11,8 @@ enum AIState    { WALKING, IDLE, ATTACKING };
 
 enum AnimationDirection { LEFT, RIGHT, UP, DOWN };
 
+//enum GameResult {NONE, WIN, LOSE};
+
 class Entity
 {
 private:
@@ -71,6 +73,7 @@ public:
     static constexpr int SECONDS_PER_FRAME = 6;
     static constexpr int ANIMATION_ARRAY_LENGTH = 4;
     static constexpr float ROT_INCREMENT = 1.0f;
+//    GameResult game_result = NONE;
 
     // ————— METHODS ————— //
     Entity();
@@ -133,6 +136,7 @@ public:
     bool      const get_map_collided_bottom() const { return m_map_collided_bottom; }
     bool      const get_map_collided_right() const { return m_map_collided_right; }
     bool      const get_map_collided_left() const { return m_map_collided_left; }
+    bool      const get_activation_status() const { return m_is_active; }
     
     void activate()   { m_is_active = true;  };
     void deactivate() { m_is_active = false; };
