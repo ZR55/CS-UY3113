@@ -332,7 +332,6 @@ void const Entity::check_collision_x(Map *map)
 }
 void Entity::update(float delta_time, Entity *player, Entity *collidable_entities, int collidable_entity_count, Map *map)
 {
-
     if (!m_is_active) return;
 
     m_collided_top    = false;
@@ -388,8 +387,17 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
 //            game_result = LOSE;
         }
     }
-    // check for win
-//    if (m_enemy_count == 0) game_result = WIN;
+
+//    // deactivate bullet if shooter is killed
+//    if (m_entity_type == ENEMY && m_ai_type == SHOOTER && !m_is_active) {
+//        shooter_is_active = false;
+//    }
+//    else {
+//        shooter_is_active = true;
+//    }
+//    if (m_entity_type == ENEMY && m_ai_type == BULLET && !shooter_is_active) {
+//        deactivate();
+//    }
     
     if (m_is_jumping)
     {

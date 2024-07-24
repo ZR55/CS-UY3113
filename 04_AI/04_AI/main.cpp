@@ -107,7 +107,7 @@ unsigned int LEVEL_1_DATA[] = {
     19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19,
     19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19,
     19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19,
-    19, 0, 0, 0, 14, 15, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19,
+    19, 0, 0, 0, 14, 15, 16, 0, 0, 0, 0, 0, 14, 16, 0, 0, 0, 0, 0, 19,
     19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19,
     19, 0, 0, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 1, 3, 0, 0, 19,
     19, 2, 2, 2, 2, 2, 7, 8, 10, 11, 2, 2, 2, 2, 7, 8, 10, 11, 2, 19,
@@ -117,6 +117,11 @@ unsigned int LEVEL_1_DATA[] = {
 
 //GLuint load_texture(const char* filepath);
 GLuint g_font_texture_id;
+
+bool g_shooter_is_active = true;
+
+float g_message_x = 0.0f,
+g_message_y = 0.0f;
 
 void initialise();
 void process_input();
@@ -343,8 +348,19 @@ void update()
         {
             g_game_state.player->update(FIXED_TIMESTEP, g_game_state.player, g_game_state.enemies, ENEMY_COUNT, g_game_state.map);
 
+
             for (int i = 0; i < ENEMY_COUNT; i++) {
-                g_game_state.enemies[i].update(FIXED_TIMESTEP,
+                // deactivate bullet if shooter is dead
+                Entity current_enemy = g_game_state.enemies[i];
+                std::cout << current_enemy.get_ai_type() << ": " << current_enemy.get_activation_status() << std::endl;
+                if (current_enemy.get_entity_type() == ENEMY && current_enemy.get_ai_type() == SHOOTER && !current_enemy.get_activation_status()) {
+                    g_shooter_is_active = false;
+                }
+                if (current_enemy.get_entity_type() == ENEMY && current_enemy.get_ai_type() == BULLET && !g_shooter_is_active) {
+                    current_enemy.deactivate();
+                }
+                // normal update for enemies
+                current_enemy.update(FIXED_TIMESTEP,
                     g_game_state.player,
                     NULL, NULL,
                     g_game_state.map);
@@ -378,16 +394,29 @@ void update()
 
 void render()
 {
-
-    
     g_shader_program.set_view_matrix(g_view_matrix);
- 
+
     glClear(GL_COLOR_BUFFER_BIT);
+
+    if (g_game_result == WIN) {
+        g_message_x = g_game_state.player->get_position().x - 2.0f;
+        if (g_message_x <= LEFT_EDGE) g_message_x = LEFT_EDGE;
+        Utility::draw_text(&g_shader_program, g_font_texture_id, "You Won!", 0.5f, -0.05f,
+            glm::vec3(g_message_x, g_message_y, 0.0f));
+    }
+    else if (g_game_result == LOSE) {
+        g_message_x = g_game_state.player->get_position().x - 2.0f;
+        if (g_message_x <= LEFT_EDGE) g_message_x = LEFT_EDGE;
+        Utility::draw_text(&g_shader_program, g_font_texture_id, "You Lost!", 0.5f, -0.05f,
+            glm::vec3(g_message_x, g_message_y,  0.0f));
+
+    }
 
     g_game_state.player->render(&g_shader_program);
 
     for (int i = 0; i < ENEMY_COUNT; i++)
         g_game_state.enemies[i].render(&g_shader_program);
+    
     g_game_state.map->render(&g_shader_program);
 
     SDL_GL_SwapWindow(g_display_window);

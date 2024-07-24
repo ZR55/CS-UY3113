@@ -67,12 +67,15 @@ private:
     bool m_map_collided_bottom = false;
     bool m_map_collided_left   = false;
     bool m_map_collided_right  = false;
+    
 
 public:
     // ————— STATIC VARIABLES ————— //
     static constexpr int SECONDS_PER_FRAME = 6;
     static constexpr int ANIMATION_ARRAY_LENGTH = 4;
     static constexpr float ROT_INCREMENT = 1.0f;
+    
+//    static bool shooter_is_active;
 //    GameResult game_result = NONE;
 
     // ————— METHODS ————— //
