@@ -112,7 +112,7 @@ public:
         if (m_entity_type == PLAYER) m_animation_indices = m_animation[LEFT];
         if (m_entity_type == ENEMY) {
             m_animation_indices = m_animation[MOVE_LEFT];
-            if (m_ai_type == FLYER) std::cout << "set to face left\n";
+//            if (m_ai_type == FLYER) std::cout << "set to face left\n";
 //            for (int i = 0; i < 4; i++) std::cout << m_animation_indices[i] << "\n";
         }
     }
@@ -120,8 +120,8 @@ public:
         if (m_entity_type == PLAYER) m_animation_indices = m_animation[RIGHT];
         if (m_entity_type == ENEMY) 
         {m_animation_indices = m_animation[MOVE_RIGHT];
-            if (m_ai_type == FLYER) std::cout << "set to face right\n";
-            for (int i = 0; i < 4; i++) std::cout << m_animation_indices[i] << "\n";
+//            if (m_ai_type == FLYER) std::cout << "set to face right\n";
+//            for (int i = 0; i < 4; i++) std::cout << m_animation_indices[i] << "\n";
         }
     }
     void face_up() { m_animation_indices = m_animation[UP]; }

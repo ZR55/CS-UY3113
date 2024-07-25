@@ -59,10 +59,15 @@ void Entity::ai_guard(Entity *player)
             break;
             
         case WALKING:
-            if (m_position.x > player->get_position().x) {
+            std::cout << "fox x = " << m_position.x << "; player x = " << player->get_position().x << std::endl;
+            if (m_position.x >= player->get_position().x - 0.05 && m_position.x <= player->get_position().x + 0.05) {
+                m_movement = glm::vec3(0.0f);
+            } else if (m_position.x > player->get_position().x) {
                 m_movement = glm::vec3(-1.0f, 0.0f, 0.0f);
-            } else {
+                face_left();
+            } else if (m_position.x < player->get_position().x) {
                 m_movement = glm::vec3(1.0f, 0.0f, 0.0f);
+                face_right();
             }
             break;
             
@@ -75,9 +80,6 @@ void Entity::ai_guard(Entity *player)
 }
 
 void Entity::ai_fly() {
-//    m_rotation_direction = glm::vec3(0.0f, 0.0f, -1.0f);
-//    m_rotation_theta_sin = m_rotation_theta_cos;
-
     if (m_rotation_theta > 360) {
         face_left();
         m_speed *= -1;
@@ -86,6 +88,8 @@ void Entity::ai_fly() {
         face_right();
         m_speed *= -1;
     }
+    m_movement.x = m_speed;
+    m_velocity.x = m_speed;
     m_rotation_theta += m_speed;
 }
 
@@ -204,6 +208,7 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
 
                     // Collision!
                     m_collided_top  = true;
+                    std::cout << "TOP\n";
 
                 } else if (m_velocity.y < 0)
                 {
@@ -215,6 +220,9 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                     
                     // deactivate the enemy and remove it from array
                     if (collidable_entity->m_entity_type == ENEMY && m_entity_type == PLAYER) {
+                        // TODO: make the dying render
+//                        if (collidable_entity->m_velocity.x > 0) die_right();
+//                        if (collidable_entity->m_velocity.x < 0) die_left();
                         collidable_entity->deactivate();
                         m_enemy_count--;
                     }
@@ -357,14 +365,14 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
     
     if (m_animation_indices != NULL)
     {
-        if (m_ai_type == FLYER) {
-            std::cout << "UPDATE\n";
-            for (int i = 0; i < 4; i++) std::cout <<m_animation_indices[i] << "; ";
-            std::cout << std::endl;
-            std::cout << "m_animation_index: " << m_animation_index << "\n";
-        }
-//        if (m_ai_type == FLYER) std::cout << "length of movement: " << glm::length(m_movement) << std::endl;
-        if (glm::length(m_movement) != 0 || m_ai_type == FLYER)
+//        if (m_ai_type == FLYER) {
+//            std::cout << "UPDATE\n";
+//            for (int i = 0; i < 4; i++) std::cout <<m_animation_indices[i] << "; ";
+//            std::cout << std::endl;
+//            std::cout << "m_animation_index: " << m_animation_index << "\n";
+//        }
+//        if (m_ai_type == GUARD) std::cout << "length of movement: " << glm::length(m_movement) << std::endl;
+        if (glm::length(m_movement) != 0)
         {
 //            if (m_ai_type == FLYER) std::cout << "inside second if\n";
             m_animation_time += delta_time;
@@ -372,10 +380,10 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
             
             if (m_animation_time >= frames_per_second)
             {
-                if (m_ai_type == FLYER) std::cout << "inside if\n m_animation_index = " << m_animation_index << std::endl;
+//                if (m_ai_type == FLYER) std::cout << "inside if\n m_animation_index = " << m_animation_index << std::endl;
                 m_animation_time = 0.0f;
                 m_animation_index++;
-                if (m_ai_type == FLYER) std::cout << "m_animation_index = " << m_animation_index << std::endl;
+//                if (m_ai_type == FLYER) std::cout << "m_animation_index = " << m_animation_index << std::endl;
 //                if (m_ai_type == FLYER) std::cout << m_animation_index << std::endl;
                 
                 if (m_animation_index >= m_animation_frames)
@@ -442,12 +450,12 @@ void Entity::render(ShaderProgram* program)
 
     if (m_animation_indices != NULL)
     {
-        if (m_ai_type == FLYER) {
-            std::cout << "RENDER\n";
-            for (int i = 0; i < 4; i++) std::cout <<m_animation_indices[i] << "; ";
-            std::cout << std::endl;
-            std::cout << "m_animation_index: " << m_animation_index << "\n";
-        }
+//        if (m_ai_type == FLYER) {
+//            std::cout << "RENDER\n";
+//            for (int i = 0; i < 4; i++) std::cout <<m_animation_indices[i] << "; ";
+//            std::cout << std::endl;
+//            std::cout << "m_animation_index: " << m_animation_index << "\n";
+//        }
         draw_sprite_from_texture_atlas(program, m_texture_id, m_animation_indices[m_animation_index]);
         return;
     }

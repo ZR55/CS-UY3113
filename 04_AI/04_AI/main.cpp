@@ -76,7 +76,7 @@ constexpr char PLAYERSHEET_FILEPATH[] = "assets/rabbit.png",
 TILESET_FILEPATH[] = "assets/winterTileSheet1.png",
 //TILESET_FILEPATH[] = "assets/tileset.png",
 VULTURESHEET_FILEPATH[] = "assets/vulture1.png",
-FOXSHEET_FILEPATH[] = "assets/fox_static.png",
+FOXSHEET_FILEPATH[] = "assets/fox.png",
 HUNTERSHEET_FILEPATH[] = "assets/hunter_static.png",
 BULLETSHEET_FILEPATH[] = "assets/bullet.png",
 FONTSHEET_FILEPATH[] = "assets/font1.png";
@@ -218,20 +218,22 @@ void initialise()
     GLuint hunter_texture_id = Utility::load_texture(HUNTERSHEET_FILEPATH);
     GLuint bullet_texture_id = Utility::load_texture(BULLETSHEET_FILEPATH);
     
-    // ----- VULTURE ----- //
-    int vulture_animation[4][4] =
+    int enemy_animation[4][4] =
     {
     { 0, 1, 2, 3 },     // fly left,
     { 4, 5, 6, 7 }, // fly right,
     { 8, 9, 10, 11 },     // die left,
     { 12, 13, 14, 15 }    // die right
     };
-    g_game_state.enemies[0] = Entity(vulture_texture_id, -1.0f, glm::vec3(0.0f), 0.0f, vulture_animation, 0.0f, 4, 0, 4, 4, 1.0f, 1.0f, ENEMY, FLYER, IDLE);
+
+    // ----- VULTURE ----- //
+
+    g_game_state.enemies[0] = Entity(vulture_texture_id, -1.0f, glm::vec3(0.0f), 0.0f, enemy_animation, 0.0f, 4, 0, 4, 4, 1.0f, 1.0f, ENEMY, FLYER, IDLE);
     g_game_state.enemies[0].set_position(glm::vec3(8.0f, -0.5f, 0.0f));
 
     // ----- FOX ----- //
 
-    g_game_state.enemies[1] = Entity(fox_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, GUARD, IDLE);
+    g_game_state.enemies[1] = Entity(fox_texture_id, 1.0f, gravity, 0.0f, enemy_animation, 0.0f, 4, 0, 4, 4, 1.5f, 1.5f, ENEMY, GUARD, IDLE);
     g_game_state.enemies[1].set_position(glm::vec3(2.0f, -5.0f, 0.0f));
 
     // ----- HUNTER ----- //
