@@ -351,7 +351,6 @@ void update()
             if (!g_game_state.player->get_activation_status()) g_game_result = LOSE;
             
             // check for win
-            std::cout << g_current_enemy_count << std::endl;
             if (g_current_enemy_count == 0) g_game_result = WIN;
 
 

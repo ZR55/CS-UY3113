@@ -110,19 +110,11 @@ public:
 
     void face_left() {
         if (m_entity_type == PLAYER) m_animation_indices = m_animation[LEFT];
-        if (m_entity_type == ENEMY) {
-            m_animation_indices = m_animation[MOVE_LEFT];
-//            if (m_ai_type == FLYER) std::cout << "set to face left\n";
-//            for (int i = 0; i < 4; i++) std::cout << m_animation_indices[i] << "\n";
-        }
+        if (m_entity_type == ENEMY) m_animation_indices = m_animation[MOVE_LEFT];
     }
     void face_right() {
         if (m_entity_type == PLAYER) m_animation_indices = m_animation[RIGHT];
-        if (m_entity_type == ENEMY) 
-        {m_animation_indices = m_animation[MOVE_RIGHT];
-//            if (m_ai_type == FLYER) std::cout << "set to face right\n";
-//            for (int i = 0; i < 4; i++) std::cout << m_animation_indices[i] << "\n";
-        }
+        if (m_entity_type == ENEMY) m_animation_indices = m_animation[MOVE_RIGHT];
     }
     void face_up() { m_animation_indices = m_animation[UP]; }
     void face_down() { m_animation_indices = m_animation[DOWN]; }
@@ -188,30 +180,14 @@ public:
     // Setter for m_animation
     void set_animation(int animation[4][4])
     {
-//        if (m_ai_type == FLYER) std::cout << "setting m_animation\n";
         for (int i = 0; i < 4; ++i)
         {
-//            if (m_ai_type == FLYER) std::cout << i << ": ";
             for (int j = 0; j < 4; ++j)
             {
                 m_animation[i][j] = animation[i][j];
-//                if (m_ai_type == FLYER) std::cout <<m_animation[i][j];
             }
-//            if (m_ai_type == FLYER) std::cout << "\n";
         }
     }
-    
-//    // setter for enemy animation
-//    void set_enemy_animation(int enemy_animation[4][4])
-//    {
-//        for (int i = 0; i < 4; ++i)
-//        {
-//            for (int j = 0; j < 4; ++j)
-//            {
-//                m_enemy_animation[i][j] = enemy_animation[i][j];
-//            }
-//        }
-//    }
 };
 
 #endif // ENTITY_H

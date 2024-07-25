@@ -60,8 +60,6 @@ void Entity::ai_guard(Entity *player)
             break;
             
         case WALKING:
-//            std::cout << "fox x = " << m_position.x << "; player x = " << player->get_position().x << std::endl;
-//            std::cout << "left: " <<m_map_collided_left <<", right: " << m_map_collided_right << std::endl;
             if (m_position.x >= player->get_position().x - 0.05 && m_position.x <= player->get_position().x + 0.05) {
                 m_movement = glm::vec3(0.0f);
             } else if (m_position.x > player->get_position().x) {
@@ -211,8 +209,6 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
 
                     // Collision!
                     m_collided_top  = true;
-                    std::cout << "TOP\n";
-
                 } else if (m_velocity.y < 0)
                 {
                     m_position.y      += y_overlap;
@@ -351,7 +347,6 @@ void const Entity::check_collision_x(Map *map)
 }
 void Entity::update(float delta_time, Entity *player, Entity *collidable_entities, int collidable_entity_count, Map *map)
 {
-//    if (m_ai_type == FLYER) std::cout << "theta is: " << m_rotation_theta << std::endl;
     if (!m_is_active) return;
 
     m_collided_top    = false;
@@ -368,26 +363,15 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
     
     if (m_animation_indices != NULL)
     {
-//        if (m_ai_type == FLYER) {
-//            std::cout << "UPDATE\n";
-//            for (int i = 0; i < 4; i++) std::cout <<m_animation_indices[i] << "; ";
-//            std::cout << std::endl;
-//            std::cout << "m_animation_index: " << m_animation_index << "\n";
-//        }
-//        if (m_ai_type == GUARD) std::cout << "length of movement: " << glm::length(m_movement) << std::endl;
         if (glm::length(m_movement) != 0)
         {
-//            if (m_ai_type == FLYER) std::cout << "inside second if\n";
             m_animation_time += delta_time;
             float frames_per_second = (float) 1 / SECONDS_PER_FRAME;
             
             if (m_animation_time >= frames_per_second)
             {
-//                if (m_ai_type == FLYER) std::cout << "inside if\n m_animation_index = " << m_animation_index << std::endl;
                 m_animation_time = 0.0f;
                 m_animation_index++;
-//                if (m_ai_type == FLYER) std::cout << "m_animation_index = " << m_animation_index << std::endl;
-//                if (m_ai_type == FLYER) std::cout << m_animation_index << std::endl;
                 
                 if (m_animation_index >= m_animation_frames)
                 {
@@ -407,7 +391,6 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
     
     if (m_ai_type == FLYER) {
         m_position.x = m_rotation_center.x + glm::cos(m_rotation_theta * delta_time) * 1.6f;
-//        std::cout << "flyer's x: " << m_position.x << std::endl;
     }
     else m_position.x += m_velocity.x * delta_time;
     check_collision_x(map);
@@ -418,26 +401,8 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
     if (m_entity_type == PLAYER) {
         if (m_collided_top || m_collided_left || m_collided_right) {
             deactivate();
-//            game_result = LOSE;
         }
     }
-    
-    // set fox movement to 0 if collide with map
-    if (m_ai_type == GUARD) std::cout << "left: " <<m_map_collided_left <<", right: " << m_map_collided_right << std::endl;
-    if (m_ai_type == GUARD && (m_map_collided_left || m_map_collided_right)) {
-        m_movement = glm::vec3(0.0f);
-    }
-
-//    // deactivate bullet if shooter is killed
-//    if (m_entity_type == ENEMY && m_ai_type == SHOOTER && !m_is_active) {
-//        shooter_is_active = false;
-//    }
-//    else {
-//        shooter_is_active = true;
-//    }
-//    if (m_entity_type == ENEMY && m_ai_type == BULLET && !shooter_is_active) {
-//        deactivate();
-//    }
     
     if (m_is_jumping)
     {
@@ -459,12 +424,6 @@ void Entity::render(ShaderProgram* program)
 
     if (m_animation_indices != NULL)
     {
-//        if (m_ai_type == FLYER) {
-//            std::cout << "RENDER\n";
-//            for (int i = 0; i < 4; i++) std::cout <<m_animation_indices[i] << "; ";
-//            std::cout << std::endl;
-//            std::cout << "m_animation_index: " << m_animation_index << "\n";
-//        }
         draw_sprite_from_texture_atlas(program, m_texture_id, m_animation_indices[m_animation_index]);
         return;
     }
