@@ -77,15 +77,16 @@ void Entity::ai_guard(Entity *player)
 void Entity::ai_fly() {
 //    m_rotation_direction = glm::vec3(0.0f, 0.0f, -1.0f);
 //    m_rotation_theta_sin = m_rotation_theta_cos;
-    m_rotation_theta += m_speed;
+
     if (m_rotation_theta > 360) {
         face_left();
         m_speed *= -1;
     }
-    else if (m_rotation_theta < 180) {
+    if (m_rotation_theta < 180) {
         face_right();
         m_speed *= -1;
     }
+    m_rotation_theta += m_speed;
 }
 
 // Default constructor
@@ -356,6 +357,12 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
     
     if (m_animation_indices != NULL)
     {
+        if (m_ai_type == FLYER) {
+            std::cout << "UPDATE\n";
+            for (int i = 0; i < 4; i++) std::cout <<m_animation_indices[i] << "; ";
+            std::cout << std::endl;
+            std::cout << "m_animation_index: " << m_animation_index << "\n";
+        }
 //        if (m_ai_type == FLYER) std::cout << "length of movement: " << glm::length(m_movement) << std::endl;
         if (glm::length(m_movement) != 0 || m_ai_type == FLYER)
         {
@@ -436,6 +443,7 @@ void Entity::render(ShaderProgram* program)
     if (m_animation_indices != NULL)
     {
         if (m_ai_type == FLYER) {
+            std::cout << "RENDER\n";
             for (int i = 0; i < 4; i++) std::cout <<m_animation_indices[i] << "; ";
             std::cout << std::endl;
             std::cout << "m_animation_index: " << m_animation_index << "\n";

@@ -226,7 +226,7 @@ void initialise()
     { 8, 9, 10, 11 },     // die left,
     { 12, 13, 14, 15 }    // die right
     };
-    g_game_state.enemies[0] = Entity(vulture_texture_id, 1.0f, glm::vec3(0.0f), 0.0f, vulture_animation, 0.0f, 4, 0, 4, 4, 1.0f, 1.0f, ENEMY, FLYER, IDLE);
+    g_game_state.enemies[0] = Entity(vulture_texture_id, -1.0f, glm::vec3(0.0f), 0.0f, vulture_animation, 0.0f, 4, 0, 4, 4, 1.0f, 1.0f, ENEMY, FLYER, IDLE);
     g_game_state.enemies[0].set_position(glm::vec3(8.0f, -0.5f, 0.0f));
 
     // ----- FOX ----- //

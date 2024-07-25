@@ -39,7 +39,7 @@ private:
 
     float     m_speed,
               m_jumping_power,
-    m_rotation_theta = 180.0f;
+    m_rotation_theta = 179.8f;
     
     bool m_is_jumping = false;
 
@@ -121,7 +121,7 @@ public:
         if (m_entity_type == ENEMY) 
         {m_animation_indices = m_animation[MOVE_RIGHT];
             if (m_ai_type == FLYER) std::cout << "set to face right\n";
-//            for (int i = 0; i < 4; i++) std::cout << m_animation_indices[i] << "\n";
+            for (int i = 0; i < 4; i++) std::cout << m_animation_indices[i] << "\n";
         }
     }
     void face_up() { m_animation_indices = m_animation[UP]; }
