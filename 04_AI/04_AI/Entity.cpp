@@ -48,18 +48,20 @@ void Entity::ai_bullet()
     m_movement = glm::vec3(-1.0f, 0.0f, 0.0f);
     
     // shoot again once it hits the edge
-    if (m_position.x <= LEFT_EDGE - 4.0f) m_position = glm::vec3(15.5f, -4.0f, 0.0f);
+    if (m_position.x <= LEFT_EDGE - 4.0f) m_position = glm::vec3(15.0f, -4.0f, 0.0f);
 }
 
 void Entity::ai_guard(Entity *player)
 {
     switch (m_ai_state) {
         case IDLE:
+            m_movement = glm::vec3(0.0f);
             if (glm::distance(m_position, player->get_position()) < 4.0f) m_ai_state = WALKING;
             break;
             
         case WALKING:
-            std::cout << "fox x = " << m_position.x << "; player x = " << player->get_position().x << std::endl;
+//            std::cout << "fox x = " << m_position.x << "; player x = " << player->get_position().x << std::endl;
+//            std::cout << "left: " <<m_map_collided_left <<", right: " << m_map_collided_right << std::endl;
             if (m_position.x >= player->get_position().x - 0.05 && m_position.x <= player->get_position().x + 0.05) {
                 m_movement = glm::vec3(0.0f);
             } else if (m_position.x > player->get_position().x) {
@@ -69,6 +71,7 @@ void Entity::ai_guard(Entity *player)
                 m_movement = glm::vec3(1.0f, 0.0f, 0.0f);
                 face_right();
             }
+            if (glm::distance(m_position, player->get_position()) > 4.0f) m_ai_state = IDLE;
             break;
             
         case ATTACKING:
@@ -218,7 +221,7 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                     // Collision!
                     m_collided_bottom  = true;
                     
-                    // deactivate the enemy and remove it from array
+                    // deactivate the enemy
                     if (collidable_entity->m_entity_type == ENEMY && m_entity_type == PLAYER) {
                         // TODO: make the dying render
 //                        if (collidable_entity->m_velocity.x > 0) die_right();
@@ -417,6 +420,12 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
             deactivate();
 //            game_result = LOSE;
         }
+    }
+    
+    // set fox movement to 0 if collide with map
+    if (m_ai_type == GUARD) std::cout << "left: " <<m_map_collided_left <<", right: " << m_map_collided_right << std::endl;
+    if (m_ai_type == GUARD && (m_map_collided_left || m_map_collided_right)) {
+        m_movement = glm::vec3(0.0f);
     }
 
 //    // deactivate bullet if shooter is killed

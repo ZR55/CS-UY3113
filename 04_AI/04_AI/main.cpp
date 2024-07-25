@@ -77,7 +77,7 @@ TILESET_FILEPATH[] = "assets/winterTileSheet1.png",
 //TILESET_FILEPATH[] = "assets/tileset.png",
 VULTURESHEET_FILEPATH[] = "assets/vulture1.png",
 FOXSHEET_FILEPATH[] = "assets/fox.png",
-HUNTERSHEET_FILEPATH[] = "assets/hunter_static.png",
+HUNTERSHEET_FILEPATH[] = "assets/hunter.png",
 BULLETSHEET_FILEPATH[] = "assets/bullet.png",
 FONTSHEET_FILEPATH[] = "assets/font1.png";
 
@@ -242,7 +242,7 @@ void initialise()
     
     // ----- BULLET ----- //
     g_game_state.enemies[3] = Entity(bullet_texture_id, 2.0f, 0.3f, 0.3f, ENEMY, BULLET, IDLE);
-    g_game_state.enemies[3].set_position(glm::vec3(15.5f, -4.0f, 0.0f));
+    g_game_state.enemies[3].set_position(glm::vec3(15.0f, -4.0f, 0.0f));
 
 
     // ----- AUDIO STUFF ----- //
@@ -336,7 +336,7 @@ void update()
                 if (current_enemy->get_entity_type() == ENEMY && current_enemy->get_ai_type() == SHOOTER && !current_enemy->get_activation_status()) {
                     g_shooter_is_active = false;
                 }
-                if (current_enemy->get_entity_type() == ENEMY && current_enemy->get_ai_type() == BULLET && !g_shooter_is_active) {
+                if (current_enemy->get_entity_type() == ENEMY && current_enemy->get_ai_type() == BULLET && current_enemy->get_activation_status() && !g_shooter_is_active) {
                     current_enemy->deactivate();
                     g_current_enemy_count--;
                 }
@@ -351,6 +351,7 @@ void update()
             if (!g_game_state.player->get_activation_status()) g_game_result = LOSE;
             
             // check for win
+            std::cout << g_current_enemy_count << std::endl;
             if (g_current_enemy_count == 0) g_game_result = WIN;
 
 

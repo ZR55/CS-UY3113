@@ -188,16 +188,16 @@ public:
     // Setter for m_animation
     void set_animation(int animation[4][4])
     {
-        if (m_ai_type == FLYER) std::cout << "setting m_animation\n";
+//        if (m_ai_type == FLYER) std::cout << "setting m_animation\n";
         for (int i = 0; i < 4; ++i)
         {
-            if (m_ai_type == FLYER) std::cout << i << ": ";
+//            if (m_ai_type == FLYER) std::cout << i << ": ";
             for (int j = 0; j < 4; ++j)
             {
                 m_animation[i][j] = animation[i][j];
-                if (m_ai_type == FLYER) std::cout <<m_animation[i][j];
+//                if (m_ai_type == FLYER) std::cout <<m_animation[i][j];
             }
-            if (m_ai_type == FLYER) std::cout << "\n";
+//            if (m_ai_type == FLYER) std::cout << "\n";
         }
     }
     
