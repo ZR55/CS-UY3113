@@ -75,7 +75,7 @@ constexpr char PLAYERSHEET_FILEPATH[] = "assets/rabbit.png",
 //constexpr char PLAYERSHEET_FILEPATH[] = "assets/george_0.png",
 TILESET_FILEPATH[] = "assets/winterTileSheet1.png",
 //TILESET_FILEPATH[] = "assets/tileset.png",
-VULTURESHEET_FILEPATH[] = "assets/vulture_static.png",
+VULTURESHEET_FILEPATH[] = "assets/vulture1.png",
 FOXSHEET_FILEPATH[] = "assets/fox_static.png",
 HUNTERSHEET_FILEPATH[] = "assets/hunter_static.png",
 BULLETSHEET_FILEPATH[] = "assets/bullet.png",
@@ -105,7 +105,7 @@ unsigned int LEVEL_1_DATA[] = {
     19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19,
     19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19,
     19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19,
-    19, 0, 0, 0, 14, 15, 16, 0, 0, 0, 0, 0, 14, 16, 0, 0, 0, 0, 0, 19,
+    19, 0, 0, 0, 14, 15, 16, 0, 0, 0, 0, 14, 16, 0, 0, 0, 0, 0, 0, 19,
     19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19,
     19, 0, 0, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 1, 3, 0, 0, 19,
     19, 2, 2, 2, 2, 2, 7, 8, 10, 11, 2, 2, 2, 2, 7, 8, 10, 11, 2, 19,
@@ -167,7 +167,7 @@ void initialise()
     
     // ————— MAP SET-UP ————— //
     GLuint map_texture_id = Utility::load_texture(TILESET_FILEPATH);
-    g_game_state.map = new Map(LEVEL1_WIDTH, LEVEL1_HEIGHT, LEVEL_1_DATA, map_texture_id, 1.f, 5, 4);
+    g_game_state.map = new Map(LEVEL1_WIDTH, LEVEL1_HEIGHT, LEVEL_1_DATA, map_texture_id, 1.0f, 5, 4);
 
     // ------ PLAYER ------//
     GLuint player_texture_id = Utility::load_texture(PLAYERSHEET_FILEPATH);
@@ -201,9 +201,11 @@ void initialise()
         0,                         // current animation index
         4,                         // animation column amount
         4,                         // animation row amount
-        1.0f,                      // width
-        1.0f,                       // height
-        PLAYER
+        0.5f,                      // width
+        0.5f,                       // height
+        PLAYER,
+        NOTYPE,
+        NOSTATE
     );
     g_game_state.player->set_position(glm::vec3(7.0f, -4.0f, 0.0f));
     // Jumping
@@ -217,7 +219,14 @@ void initialise()
     GLuint bullet_texture_id = Utility::load_texture(BULLETSHEET_FILEPATH);
     
     // ----- VULTURE ----- //
-    g_game_state.enemies[0] = Entity(vulture_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, FLYER, IDLE);
+    int vulture_animation[4][4] =
+    {
+    { 0, 1, 2, 3 },     // fly left,
+    { 4, 5, 6, 7 }, // fly right,
+    { 8, 9, 10, 11 },     // die left,
+    { 12, 13, 14, 15 }    // die right
+    };
+    g_game_state.enemies[0] = Entity(vulture_texture_id, 1.0f, glm::vec3(0.0f), 0.0f, vulture_animation, 0.0f, 4, 0, 4, 4, 1.0f, 1.0f, ENEMY, FLYER, IDLE);
     g_game_state.enemies[0].set_position(glm::vec3(8.0f, -0.5f, 0.0f));
 
     // ----- FOX ----- //

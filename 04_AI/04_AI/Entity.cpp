@@ -78,7 +78,14 @@ void Entity::ai_fly() {
 //    m_rotation_direction = glm::vec3(0.0f, 0.0f, -1.0f);
 //    m_rotation_theta_sin = m_rotation_theta_cos;
     m_rotation_theta += m_speed;
-    if (m_rotation_theta > 360 || m_rotation_theta < 180) m_speed *= -1;
+    if (m_rotation_theta > 360) {
+        face_left();
+        m_speed *= -1;
+    }
+    else if (m_rotation_theta < 180) {
+        face_right();
+        m_speed *= -1;
+    }
 }
 
 // Default constructor
@@ -88,24 +95,24 @@ Entity::Entity()
     m_animation_rows(0), m_animation_indices(nullptr), m_animation_time(0.0f),
     m_texture_id(0), m_velocity(0.0f), m_acceleration(0.0f), m_width(0.0f), m_height(0.0f)
 {
-    // Initialize m_walking with zeros or any default value
+    // Initialize m_animation with zeros or any default value
     for (int i = 0; i < ANIMATION_ARRAY_LENGTH; ++i)
-        for (int j = 0; j < ANIMATION_ARRAY_LENGTH; ++j) m_walking[i][j] = 0;
+        for (int j = 0; j < ANIMATION_ARRAY_LENGTH; ++j) m_animation[i][j] = 0;
 }
 
 // Parameterized constructor
-Entity::Entity(GLuint texture_id, float speed, glm::vec3 acceleration, float jump_power, int walking[4][4], float animation_time,
+Entity::Entity(GLuint texture_id, float speed, glm::vec3 acceleration, float jump_power, int animation[4][4], float animation_time,
     int animation_frames, int animation_index, int animation_cols,
-    int animation_rows, float width, float height, EntityType EntityType)
+    int animation_rows, float width, float height, EntityType EntityType, AIType AIType, AIState AIState)
     : m_position(0.0f), m_movement(0.0f), m_scale(width, height, 0.0f), m_model_matrix(1.0f),
     m_speed(speed),m_acceleration(acceleration), m_jumping_power(jump_power), m_animation_cols(animation_cols),
     m_animation_frames(animation_frames), m_animation_index(animation_index),
     m_animation_rows(animation_rows), m_animation_indices(nullptr),
     m_animation_time(animation_time), m_texture_id(texture_id), m_velocity(0.0f),
-    m_width(width), m_height(height), m_entity_type(EntityType)
+    m_width(width), m_height(height), m_entity_type(EntityType), m_ai_type(AIType), m_ai_state(AIState)
 {
+    set_animation(animation);
     face_right();
-    set_walking(walking);
 }
 
 // Simpler constructor for partial initialization
@@ -115,9 +122,9 @@ Entity::Entity(GLuint texture_id, float speed,  float width, float height, Entit
     m_animation_rows(0), m_animation_indices(nullptr), m_animation_time(0.0f),
     m_texture_id(texture_id), m_velocity(0.0f), m_acceleration(0.0f), m_width(width), m_height(height),m_entity_type(EntityType)
 {
-    // Initialize m_walking with zeros or any default value
+    // Initialize m_animation with zeros or any default value
     for (int i = 0; i < ANIMATION_ARRAY_LENGTH; ++i)
-        for (int j = 0; j < ANIMATION_ARRAY_LENGTH; ++j) m_walking[i][j] = 0;
+        for (int j = 0; j < ANIMATION_ARRAY_LENGTH; ++j) m_animation[i][j] = 0;
 }
 
 
@@ -126,9 +133,9 @@ m_speed(speed), m_animation_cols(0), m_animation_frames(0), m_animation_index(0)
 m_animation_rows(0), m_animation_indices(nullptr), m_animation_time(0.0f),
 m_texture_id(texture_id), m_velocity(0.0f), m_acceleration(0.0f), m_width(width), m_height(height),m_entity_type(EntityType), m_ai_type(AIType), m_ai_state(AIState)
 {
-// Initialize m_walking with zeros or any default value
+// Initialize m_animation with zeros or any default value
 for (int i = 0; i < ANIMATION_ARRAY_LENGTH; ++i)
-    for (int j = 0; j < ANIMATION_ARRAY_LENGTH; ++j) m_walking[i][j] = 0;
+    for (int j = 0; j < ANIMATION_ARRAY_LENGTH; ++j) m_animation[i][j] = 0;
 }
 
 Entity::~Entity() { }
@@ -332,6 +339,7 @@ void const Entity::check_collision_x(Map *map)
 }
 void Entity::update(float delta_time, Entity *player, Entity *collidable_entities, int collidable_entity_count, Map *map)
 {
+//    if (m_ai_type == FLYER) std::cout << "theta is: " << m_rotation_theta << std::endl;
     if (!m_is_active) return;
 
     m_collided_top    = false;
@@ -348,8 +356,10 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
     
     if (m_animation_indices != NULL)
     {
-        if (glm::length(m_movement) != 0)
+//        if (m_ai_type == FLYER) std::cout << "length of movement: " << glm::length(m_movement) << std::endl;
+        if (glm::length(m_movement) != 0 || m_ai_type == FLYER)
         {
+//            if (m_ai_type == FLYER) std::cout << "inside second if\n";
             m_animation_time += delta_time;
             float frames_per_second = (float) 1 / SECONDS_PER_FRAME;
             
@@ -357,6 +367,7 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
             {
                 m_animation_time = 0.0f;
                 m_animation_index++;
+                if (m_ai_type == FLYER) std::cout << m_animation_index << std::endl;
                 
                 if (m_animation_index >= m_animation_frames)
                 {

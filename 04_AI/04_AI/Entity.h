@@ -5,11 +5,12 @@
 #include "glm/glm.hpp"
 #include "ShaderProgram.h"
 enum EntityType { PLATFORM, PLAYER, ENEMY  };
-enum AIType     { WALKER, GUARD, FLYER, SHOOTER, BULLET };
-enum AIState    { WALKING, IDLE, ATTACKING };
+enum AIType     { WALKER, GUARD, FLYER, SHOOTER, BULLET, NOTYPE };
+enum AIState    { WALKING, IDLE, ATTACKING, NOSTATE };
 
 
 enum AnimationDirection { LEFT, RIGHT, UP, DOWN };
+enum EnemyAnimation { MOVE_LEFT, MOVE_RIGHT, DIE_LEFT, DIE_RIGHT };
 
 //enum GameResult {NONE, WIN, LOSE};
 
@@ -18,7 +19,7 @@ class Entity
 private:
     bool m_is_active = true;
     
-    int m_walking[4][4]; // 4x4 array for walking animations
+    int m_animation[4][4]; // 4x4 array for walking animations
 
     
     EntityType m_entity_type;
@@ -82,7 +83,7 @@ public:
     Entity();
     Entity(GLuint texture_id, float speed, glm::vec3 acceleration, float jump_power, int walking[4][4], float animation_time,
         int animation_frames, int animation_index, int animation_cols,
-           int animation_rows, float width, float height, EntityType EntityType);
+           int animation_rows, float width, float height, EntityType EntityType, AIType AIType, AIState AIState);
     Entity(GLuint texture_id, float speed, float width, float height, EntityType EntityType); // Simpler constructor
     Entity(GLuint texture_id, float speed, float width, float height, EntityType EntityType, AIType AIType, AIState AIState); // AI constructor
     ~Entity();
@@ -107,15 +108,31 @@ public:
     
     void normalise_movement() { m_movement = glm::normalize(m_movement); }
 
-    void face_left() { m_animation_indices = m_walking[LEFT]; }
-    void face_right() { m_animation_indices = m_walking[RIGHT]; }
-    void face_up() { m_animation_indices = m_walking[UP]; }
-    void face_down() { m_animation_indices = m_walking[DOWN]; }
+    void face_left() {
+        if (m_entity_type == PLAYER) m_animation_indices = m_animation[LEFT];
+        if (m_entity_type == ENEMY) {
+            m_animation_indices = m_animation[MOVE_LEFT];
+            for (int i = 0; i < 4; i++) std::cout << m_animation_indices[i] << "\n";
+        }
+    }
+    void face_right() {
+        if (m_entity_type == PLAYER) m_animation_indices = m_animation[RIGHT];
+        if (m_entity_type == ENEMY) 
+        {m_animation_indices = m_animation[MOVE_RIGHT];
+            if (m_ai_type == FLYER) std::cout << "set to face right\n";
+            for (int i = 0; i < 4; i++) std::cout << m_animation_indices[i] << "\n";
+        }
+    }
+    void face_up() { m_animation_indices = m_animation[UP]; }
+    void face_down() { m_animation_indices = m_animation[DOWN]; }
 
     void move_left() { m_movement.x = -1.0f; face_left(); }
     void move_right() { m_movement.x = 1.0f;  face_right(); }
     void move_up() { m_movement.y = 1.0f;  face_up(); }
     void move_down() { m_movement.y = -1.0f; face_down(); }
+    
+    void die_right() { if (m_entity_type == ENEMY) m_animation_indices = m_animation[DIE_RIGHT]; }
+    void die_left() { if (m_entity_type == ENEMY) m_animation_indices = m_animation[DIE_LEFT]; }
     
     void const jump() { m_is_jumping = true; }
 
@@ -147,7 +164,10 @@ public:
     void const set_entity_type(EntityType new_entity_type)  { m_entity_type = new_entity_type;};
     void const set_ai_type(AIType new_ai_type){ m_ai_type = new_ai_type;};
     void const set_ai_state(AIState new_state){ m_ai_state = new_state;};
-    void const set_position(glm::vec3 new_position) { m_position = new_position; m_rotation_center = new_position; }
+    void const set_position(glm::vec3 new_position) {
+        if (m_ai_type == FLYER) m_rotation_center = new_position;
+        else m_position = new_position;
+    }
     void const set_velocity(glm::vec3 new_velocity) { m_velocity = new_velocity; }
     void const set_acceleration(glm::vec3 new_acceleration) { m_acceleration = new_acceleration; }
     void const set_movement(glm::vec3 new_movement) { m_movement = new_movement; }
@@ -164,17 +184,29 @@ public:
     void const set_height(float new_height) {m_height = new_height; }
     void const set_enemy_count(int new_enemy_count) {m_enemy_count = new_enemy_count;}
 
-    // Setter for m_walking
-    void set_walking(int walking[4][4])
+    // Setter for m_animation
+    void set_animation(int animation[4][4])
     {
         for (int i = 0; i < 4; ++i)
         {
             for (int j = 0; j < 4; ++j)
             {
-                m_walking[i][j] = walking[i][j];
+                m_animation[i][j] = animation[i][j];
             }
         }
     }
+    
+//    // setter for enemy animation
+//    void set_enemy_animation(int enemy_animation[4][4])
+//    {
+//        for (int i = 0; i < 4; ++i)
+//        {
+//            for (int j = 0; j < 4; ++j)
+//            {
+//                m_enemy_animation[i][j] = enemy_animation[i][j];
+//            }
+//        }
+//    }
 };
 
 #endif // ENTITY_H
