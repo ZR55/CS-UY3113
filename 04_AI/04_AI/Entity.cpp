@@ -365,9 +365,11 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
             
             if (m_animation_time >= frames_per_second)
             {
+                if (m_ai_type == FLYER) std::cout << "inside if\n m_animation_index = " << m_animation_index << std::endl;
                 m_animation_time = 0.0f;
                 m_animation_index++;
-                if (m_ai_type == FLYER) std::cout << m_animation_index << std::endl;
+                if (m_ai_type == FLYER) std::cout << "m_animation_index = " << m_animation_index << std::endl;
+//                if (m_ai_type == FLYER) std::cout << m_animation_index << std::endl;
                 
                 if (m_animation_index >= m_animation_frames)
                 {
@@ -385,7 +387,10 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
     check_collision_y(map);
     check_collision_y(collidable_entities, collidable_entity_count);
     
-    if (m_ai_type == FLYER) m_position.x = m_rotation_center.x + glm::cos(m_rotation_theta * delta_time) * 1.6f;
+    if (m_ai_type == FLYER) {
+        m_position.x = m_rotation_center.x + glm::cos(m_rotation_theta * delta_time) * 1.6f;
+//        std::cout << "flyer's x: " << m_position.x << std::endl;
+    }
     else m_position.x += m_velocity.x * delta_time;
     check_collision_x(map);
     check_collision_x(collidable_entities, collidable_entity_count);
@@ -430,6 +435,11 @@ void Entity::render(ShaderProgram* program)
 
     if (m_animation_indices != NULL)
     {
+        if (m_ai_type == FLYER) {
+            for (int i = 0; i < 4; i++) std::cout <<m_animation_indices[i] << "; ";
+            std::cout << std::endl;
+            std::cout << "m_animation_index: " << m_animation_index << "\n";
+        }
         draw_sprite_from_texture_atlas(program, m_texture_id, m_animation_indices[m_animation_index]);
         return;
     }

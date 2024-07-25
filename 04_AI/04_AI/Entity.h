@@ -81,7 +81,7 @@ public:
 
     // ————— METHODS ————— //
     Entity();
-    Entity(GLuint texture_id, float speed, glm::vec3 acceleration, float jump_power, int walking[4][4], float animation_time,
+    Entity(GLuint texture_id, float speed, glm::vec3 acceleration, float jump_power, int animation[4][4], float animation_time,
         int animation_frames, int animation_index, int animation_cols,
            int animation_rows, float width, float height, EntityType EntityType, AIType AIType, AIState AIState);
     Entity(GLuint texture_id, float speed, float width, float height, EntityType EntityType); // Simpler constructor
@@ -112,7 +112,8 @@ public:
         if (m_entity_type == PLAYER) m_animation_indices = m_animation[LEFT];
         if (m_entity_type == ENEMY) {
             m_animation_indices = m_animation[MOVE_LEFT];
-            for (int i = 0; i < 4; i++) std::cout << m_animation_indices[i] << "\n";
+            if (m_ai_type == FLYER) std::cout << "set to face left\n";
+//            for (int i = 0; i < 4; i++) std::cout << m_animation_indices[i] << "\n";
         }
     }
     void face_right() {
@@ -120,7 +121,7 @@ public:
         if (m_entity_type == ENEMY) 
         {m_animation_indices = m_animation[MOVE_RIGHT];
             if (m_ai_type == FLYER) std::cout << "set to face right\n";
-            for (int i = 0; i < 4; i++) std::cout << m_animation_indices[i] << "\n";
+//            for (int i = 0; i < 4; i++) std::cout << m_animation_indices[i] << "\n";
         }
     }
     void face_up() { m_animation_indices = m_animation[UP]; }
@@ -187,12 +188,16 @@ public:
     // Setter for m_animation
     void set_animation(int animation[4][4])
     {
+        if (m_ai_type == FLYER) std::cout << "setting m_animation\n";
         for (int i = 0; i < 4; ++i)
         {
+            if (m_ai_type == FLYER) std::cout << i << ": ";
             for (int j = 0; j < 4; ++j)
             {
                 m_animation[i][j] = animation[i][j];
+                if (m_ai_type == FLYER) std::cout <<m_animation[i][j];
             }
+            if (m_ai_type == FLYER) std::cout << "\n";
         }
     }
     
