@@ -98,7 +98,7 @@ public:
     void const check_collision_y(Map *map);
     void const check_collision_x(Map *map);
     
-    void update(float delta_time, Entity *player, Entity *collidable_entities, int collidable_entity_count, Map *map);
+    void update(float delta_time, Entity *player, Entity *collidable_entities, int collidable_entity_count, Map *map, int current_enemy_count);
     void render(ShaderProgram* program);
 
     void ai_activate(Entity *player);

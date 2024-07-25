@@ -345,9 +345,13 @@ void const Entity::check_collision_x(Map *map)
         m_map_collided_right = true;
     }
 }
-void Entity::update(float delta_time, Entity *player, Entity *collidable_entities, int collidable_entity_count, Map *map)
+void Entity::update(float delta_time, Entity *player, Entity *collidable_entities, int collidable_entity_count, Map *map, int current_enemy_count)
 {
     if (!m_is_active) return;
+    
+    // update enemy number with main
+    if (m_entity_type == PLAYER && current_enemy_count <= m_enemy_count)
+        m_enemy_count = current_enemy_count;
 
     m_collided_top    = false;
     m_collided_bottom = false;
